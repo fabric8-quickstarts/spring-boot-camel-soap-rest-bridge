@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:cxf="http://camel.apache.org/schema/cxf"
+    xmlns:cxf-core="http://cxf.apache.org/core"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd  http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+
+    <!--cxf-core:bus>
+        <cxf-core:features>
+            <cxf-core:logging/>
+        </cxf-core:features>
+    </cxf-core:bus-->
+
+    <cxf:rsServer id="rsServer" address="/jaxrs"
+        serviceClass="org.jboss.fuse.quickstarts.security.keycloak.cxf.JaxRsService">
+           <cxf:providers>
+               <ref bean="jsonProvider"/>
+           </cxf:providers>
+    </cxf:rsServer>
+    <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+     
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <dataFormats>
+            <xmljson id="xmljson"/>
+        </dataFormats>
+        
+        <restConfiguration component="servlet" host="localhost" port="8080" bindingMode="auto">
+        </restConfiguration>
+
+        <rest id="id-d01f38ae-72ce-41de-877d-6f50f0a9b0ad" path="/jaxrs">
+
+          <post id="id-140a15b5-e0f0-498b-9592-9efd399f17bf" uri="/request/" 
+            type="com.ibm.wdata.WeatherRequest"
+            outType="com.ibm.wdata.WeatherResponse" 
+            consumes="application/json"
+            >
+            <to uri="direct:weatherRequest"/>
+          </post>
+        </rest>
+
+        <route id="weatherRequest">
+            <from uri="direct:weatherRequest" />
+            <log loggingLevel="INFO" message="weatherRequest"/>
+            <to uri="cxf://http://localhost:8282/WeatherService?serviceClass=com.ibm.wdata.WeatherPortType&amp;defaultOperationName=weatherRequest"/>
+            <setHeader headerName="Content-Type">
+               <constant>application/json</constant>
+            </setHeader>
+            <setBody>
+                <simple>${body[0]}</simple>
+            </setBody>
+        </route>
+        <route>
+            <from id="_from1" uri="cxfrs:bean:rsServer"/>
+            <log id="_log1" message="OAuth incoming ${body}"/>
+        </route>
+        
+    </camelContext>
+    <!--camelContext id="cxfrs-cc219fbe-4c04-440f-8cc6-e431d954cfef" xmlns="http://camel.apache.org/schema/spring">
+
+        <dataFormats>
+            <xmljson id="xmljson"/>
+        </dataFormats>
+        
+        <restConfiguration component="servlet" host="localhost" port="8080" bindingMode="auto">
+        </restConfiguration>
+
+        <rest id="id-d01f38ae-72ce-41de-877d-6f50f0a9b0ad" path="/jaxrs">
+
+          <post id="id-140a15b5-e0f0-498b-9592-9efd399f17bf" uri="/request/" 
+            type="com.ibm.wdata.WeatherRequest"
+            outType="com.ibm.wdata.WeatherResponse" 
+            consumes="application/json"
+            >
+            <to uri="direct:weatherRequest"/>
+          </post>
+        </rest>
+
+        <route id="weatherRequest">
+            <from uri="direct:weatherRequest" />
+            <log loggingLevel="INFO" message="weatherRequest"/>
+            <to uri="cxf://http://localhost:8282/WeatherService?serviceClass=com.ibm.wdata.WeatherPortType&amp;defaultOperationName=weatherRequest"/>
+            <setHeader headerName="Content-Type">
+               <constant>application/json</constant>
+            </setHeader>
+            <setBody>
+                <simple>${body[0]}</simple>
+            </setBody>
+        </route>
+        
+    </camelContext-->
+</beans>
