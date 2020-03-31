@@ -15,6 +15,8 @@
  */
 package org.jboss.fuse.quickstarts.security.keycloak.cxf;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.LinkedList;
 
@@ -40,6 +42,7 @@ import org.apache.camel.ServiceStatus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -137,35 +140,7 @@ public class JaxRsClientTest {
    
     public void testRestClient() throws Exception {
         
-        String accessToken = null;
-
-        try (CloseableHttpClient client = HttpClients.createMinimal()) {
-            // "4.3.  Resource Owner Password Credentials Grant"
-            // from https://tools.ietf.org/html/rfc6749#section-4.3
-            // we use "resource owner" credentials directly to obtain the token
-            HttpPost post = new HttpPost("http://localhost:8180/auth/realms/fuse7karaf/protocol/openid-connect/token");
-            LinkedList<NameValuePair> params = new LinkedList<>();
-            params.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));
-            params.add(new BasicNameValuePair("username", "admin"));
-            params.add(new BasicNameValuePair("password", "passw0rd"));
-            UrlEncodedFormEntity postData = new UrlEncodedFormEntity(params);
-            post.setEntity(postData);
-
-            String basicAuth = BasicAuthHelper.createHeader("cxf", "f1ec716d-2262-434d-8e98-bf31b6b858d6");
-            post.setHeader("Authorization", basicAuth);
-            CloseableHttpResponse response = client.execute(post);
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(response.getEntity().getContent());
-            if (json.get("error") == null) {
-                accessToken = json.get("access_token").asText();
-                LOG.info("token: {}", accessToken);
-            } else {
-                LOG.warn("error: {}, description: {}", json.get("error"), json.get("error_description"));
-                fail();
-            }
-            response.close();
-        }
+        String accessToken = fetchAccessToken();
 
         
 
@@ -201,59 +176,9 @@ public class JaxRsClientTest {
         }
     }
 
-    
-    
-    @Ignore
-    public void helloExternalAuthenticated() throws Exception {
 
-        String accessToken = null;
-
-        try (CloseableHttpClient client = HttpClients.createMinimal()) {
-            // "4.3.  Resource Owner Password Credentials Grant"
-            // from https://tools.ietf.org/html/rfc6749#section-4.3
-            // we use "resource owner" credentials directly to obtain the token
-            HttpPost post = new HttpPost("http://localhost:8180/auth/realms/fuse7karaf/protocol/openid-connect/token");
-            LinkedList<NameValuePair> params = new LinkedList<>();
-            params.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));
-            params.add(new BasicNameValuePair("username", "admin"));
-            params.add(new BasicNameValuePair("password", "passw0rd"));
-            UrlEncodedFormEntity postData = new UrlEncodedFormEntity(params);
-            post.setEntity(postData);
-
-            String basicAuth = BasicAuthHelper.createHeader("cxf-external", "7e20addd-87fc-4528-808c-e9c7c950ef23");
-            post.setHeader("Authorization", basicAuth);
-            CloseableHttpResponse response = client.execute(post);
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode json = mapper.readTree(response.getEntity().getContent());
-            if (json.get("error") == null) {
-                accessToken = json.get("access_token").asText();
-                LOG.info("token: {}", accessToken);
-            } else {
-                LOG.warn("error: {}, description: {}", json.get("error"), json.get("error_description"));
-                fail();
-            }
-            response.close();
-        }
-
-        if (accessToken != null) {
-            try (CloseableHttpClient client = HttpClients.createMinimal()) {
-                // "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
-                // https://tools.ietf.org/html/rfc6750
-                HttpGet get = new HttpGet("http://localhost:8282/jaxrs/service/hello/hi");
-
-                get.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-                CloseableHttpResponse response = client.execute(get);
-
-                LOG.info("response: {}", EntityUtils.toString(response.getEntity()));
-                response.close();
-            }
-        }
-    }
-
-    @Test
-    public void helloEmbeddedAuthenticated() throws Exception {
-
+    private String fetchAccessToken()
+        throws UnsupportedEncodingException, IOException, ClientProtocolException {
         String accessToken = null;
 
         try (CloseableHttpClient client = HttpClients.createMinimal()) {
@@ -283,6 +208,17 @@ public class JaxRsClientTest {
             }
             response.close();
         }
+        return accessToken;
+    }
+
+    
+    
+    
+
+    @Test
+    public void helloEmbeddedAuthenticated() throws Exception {
+
+        String accessToken = fetchAccessToken();
 
         if (accessToken != null) {
             try (CloseableHttpClient client = HttpClients.createMinimal()) {
