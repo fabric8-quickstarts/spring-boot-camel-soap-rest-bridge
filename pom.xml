@@ -85,7 +85,6 @@
             <artifactId>camel-jackson</artifactId>
         </dependency>
 
-        <!-- Provides the cxf bus that can be injected see WebServiceConfig -->
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
