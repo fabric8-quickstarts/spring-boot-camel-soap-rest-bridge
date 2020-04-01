@@ -86,7 +86,7 @@ public class JaxRsClientTest {
         Map<String, Object> inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned Signature");
         inProps.put("signatureVerificationPropFile", "bob.properties");
-        
+        impl.getProperties().put("ws-security.saml2.validator", "org.example.Saml2Validator");
 
         impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
         impl.getInInterceptors().add(new LoggingInInterceptor());
