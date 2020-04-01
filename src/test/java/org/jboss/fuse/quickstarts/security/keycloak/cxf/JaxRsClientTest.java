@@ -42,6 +42,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.ServiceStatus;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.ext.logging.LoggingInInterceptor;
+import org.apache.cxf.ext.logging.LoggingOutInterceptor;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.http.HttpHeaders;
@@ -87,7 +89,8 @@ public class JaxRsClientTest {
         
 
         impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
-        
+        impl.getInInterceptors().add(new LoggingInInterceptor());
+        impl.getOutInterceptors().add(new LoggingOutInterceptor());
     }
 
 
