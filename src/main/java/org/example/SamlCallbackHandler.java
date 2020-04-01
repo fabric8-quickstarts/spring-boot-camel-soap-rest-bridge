@@ -71,7 +71,7 @@ public class SamlCallbackHandler implements CallbackHandler {
                     callback.setConditions(conditions);
                 }
 
-                callback.setIssuer("sts");
+                callback.setIssuer("keycloak");
                 String subjectName = "uid=sts-client,o=mock-sts.com";
                 String subjectQualifier = "www.mock-sts.com";
                 if (!saml2 && SAML2Constants.CONF_SENDER_VOUCHES.equals(confirmationMethod)) {

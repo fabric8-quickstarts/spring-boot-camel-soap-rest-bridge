@@ -18,7 +18,7 @@ public class Saml2Validator extends SamlAssertionValidator {
         Credential validatedCredential = super.validate(credential, data);
         SamlAssertionWrapper assertion = validatedCredential.getSamlAssertion();
 
-        if (!"sts".equals(assertion.getIssuerString())) {
+        if (!"keycloak".equals(assertion.getIssuerString())) {
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "invalidSAMLsecurity");
         }
 
