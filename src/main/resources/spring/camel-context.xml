@@ -17,6 +17,13 @@
            </cxf:providers>
     </cxf:rsServer>
     <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+
+    <cxf:cxfEndpoint address="http://localhost:8282/WeatherService" id="soap">
+        <cxf:outInterceptors>
+            <ref bean="wss4jOutInterceptor-saml"/>
+            <ref bean="loggingOutInterceptor"/>
+        </cxf:outInterceptors>
+    </cxf:cxfEndpoint>
      
     <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
         <dataFormats>
@@ -40,7 +47,7 @@
         <route id="weatherRequest">
             <from uri="direct:weatherRequest" />
             <log loggingLevel="INFO" message="weatherRequest ${headers.Authorization}"/>
-            <to uri="cxf://http://localhost:8282/WeatherService?serviceClass=com.ibm.wdata.WeatherPortType&amp;defaultOperationName=weatherRequest"/>
+            <to uri="cxf:bean:soap?serviceClass=com.ibm.wdata.WeatherPortType&amp;defaultOperationName=weatherRequest"/>
             <setHeader headerName="Content-Type">
                <constant>application/json</constant>
             </setHeader>
@@ -54,4 +61,21 @@
         </route>
         
     </camelContext>
+    <bean class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor" id="wss4jOutInterceptor-saml">
+        <constructor-arg>
+            <map>
+                <entry key="action" value="Timestamp SAMLTokenSigned"/>
+                <entry key="user" value="alice"/>
+                <entry key="signaturePropFile" value="alice.properties"/>
+                <entry key="passwordCallbackClass" value="org.example.KeystorePasswordCallback"/>
+                <entry key="samlCallbackRef" value-ref="samlCallbackHandler"/>
+            </map>
+        </constructor-arg>
+    </bean>
+    <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+    <bean id="samlCallbackHandler" class="org.example.SamlCallbackHandler">
+        <constructor-arg value="true" />
+        <constructor-arg value="true" />
+        <property name="confirmationMethod" value="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key" />
+    </bean>
 </beans>

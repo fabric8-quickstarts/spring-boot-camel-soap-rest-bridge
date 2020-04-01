@@ -18,7 +18,9 @@ package org.jboss.fuse.quickstarts.security.keycloak.cxf;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -40,6 +42,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.ServiceStatus;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -56,7 +60,6 @@ import org.jboss.fuse.wsdl2rest.util.SpringCamelContextFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.util.BasicAuthHelper;
@@ -75,10 +78,16 @@ public class JaxRsClientTest {
 
     @BeforeClass
     public static void beforeClass() {
-        Endpoint endpoint = Endpoint.create(new WeatherPortImpl());
-        endpoint.getProperties().put(Endpoint.WSDL_SERVICE, SERVICE_QNAME);
-        endpoint.publish(JAXWS_URI);
-        Assert.assertTrue(endpoint.isPublished());
+        Object implementor = new WeatherPortImpl();
+     
+        EndpointImpl impl = (EndpointImpl)Endpoint.publish(JAXWS_URI, implementor);
+        Map<String, Object> inProps = new HashMap<>();
+        inProps.put("action", "Timestamp SAMLTokenSigned Signature");
+        inProps.put("signatureVerificationPropFile", "bob.properties");
+        
+
+        impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
+        
     }
 
 
@@ -99,15 +108,20 @@ public class JaxRsClientTest {
         Service service = Service.create(new URL(JAXWS_URI + "?wsdl"), SERVICE_QNAME);
         WeatherPortType port = service.getPort(WeatherPortType.class);
         Assert.assertNotNull("Address not null", port);
+        try {
 
-        WeatherRequest request = new WeatherRequest();
-        request.setZipcode("M3H 2J8");
-        WeatherResponse response = port.weatherRequest(request);
-        Assert.assertEquals("M3H 2J8", response.getZip());
-        Assert.assertEquals("LA", response.getCity());
-        Assert.assertEquals("CA", response.getState());
-        Assert.assertEquals("95%", response.getHumidity());
-        Assert.assertEquals("28", response.getTemperature());
+            WeatherRequest request = new WeatherRequest();
+            request.setZipcode("M3H 2J8");
+            WeatherResponse response = port.weatherRequest(request);
+            fail("should fail caz no security");
+            Assert.assertEquals("M3H 2J8", response.getZip());
+            Assert.assertEquals("LA", response.getCity());
+            Assert.assertEquals("CA", response.getState());
+            Assert.assertEquals("95%", response.getHumidity());
+            Assert.assertEquals("28", response.getTemperature());
+        } catch (Exception ex) {
+            Assert.assertEquals("A security error was encountered when verifying the message", ex.getMessage());
+        }
     }
     
     @Test
