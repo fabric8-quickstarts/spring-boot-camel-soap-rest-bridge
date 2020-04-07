@@ -2,7 +2,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:cxf="http://camel.apache.org/schema/cxf"
     xmlns:cxf-core="http://cxf.apache.org/core"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd  http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+    xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:sec="http://cxf.apache.org/configuration/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd         http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd  http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http://cxf.apache.org/configuration/security http://cxf.apache.org/schemas/configuration/security.xsd">
 
     <!--cxf-core:bus>
         <cxf-core:features>
@@ -78,4 +80,51 @@
         <constructor-arg value="true" />
         <property name="confirmationMethod" value="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key" />
     </bean>
+    <bean id="transportSTSProviderBean" class="org.apache.cxf.ws.security.sts.provider.SecurityTokenServiceProvider">
+        <property name="issueOperation" ref="transportIssueDelegate"/>
+    </bean>
+    
+    <bean id="transportIssueDelegate" class="org.apache.cxf.sts.operation.TokenIssueOperation">
+        <property name="tokenProviders" ref="transportSamlTokenProvider"/>
+        <property name="stsProperties" ref="transportSTSProperties"/>
+        <property name="claimsManager" ref="claimsManager" />
+    </bean>
+    <bean id="transportSamlTokenProvider" class="org.apache.cxf.sts.token.provider.SAMLTokenProvider">
+    </bean>
+    
+    <bean id="claimsManager" class="org.apache.cxf.sts.claims.ClaimsManager">
+        <property name="claimHandlers" ref="rolesClaimsHandler" />
+    </bean>
+    
+    <bean id="rolesClaimsHandler"
+        class="org.example.KeycloakRolesClaimsHandler">
+        <property name="address" value="http://localhost:8180/auth"/>
+        <property name="realm" value="fuse7karaf"/>
+        <property name="adminUser" value="karafadmin"/>
+        <property name="adminPassword" value="karafadmin"/>
+    </bean>
+
+    <bean id="transportSTSProperties" class="org.apache.cxf.sts.StaticSTSProperties">
+        <property name="signaturePropertiesFile" value="alice.properties"/>
+        <property name="signatureUsername" value="alice"/>
+        <property name="callbackHandlerClass" value="org.example.KeystorePasswordCallback"/>
+        <property name="issuer" value="CXF_STS"/>
+    </bean>
+    
+    <bean id="utValidator" class="org.example.KeycloakUTValidator">
+        <property name="address" value="http://localhost:8180/auth"/>
+        <property name="realm" value="fuse7karaf"/>
+    </bean>
+    
+    <jaxws:endpoint xmlns:ns1="http://docs.oasis-open.org/ws-sx/ws-trust/200512/" 
+        id="transportSTS" 
+        implementor="#transportSTSProviderBean" 
+        address="/UT" 
+        wsdlLocation="/ws-trust-1.4-service.wsdl" 
+        serviceName="ns1:SecurityTokenService" 
+        endpointName="ns1:UT_Port">
+        <jaxws:properties>
+            <entry key="ws-security.ut.validator" value-ref="utValidator" />
+        </jaxws:properties>
+    </jaxws:endpoint>
 </beans>

@@ -76,7 +76,7 @@ public class JaxRsClientTest {
     public static Logger LOG = LoggerFactory.getLogger(JaxRsClientTest.class);
     static String JAXWS_URI = "http://localhost:8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
-    static String JAXRS_URL = "http://localhost:8080/cxf/jaxrs";
+    static String JAXRS_URL = "http://localhost:8080/camelcxf/jaxrs";
 
     @BeforeClass
     public static void beforeClass() {

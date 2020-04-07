@@ -27,7 +27,7 @@ public class Application extends SpringBootServletInitializer implements WebAppl
    
    @Bean
    public ServletRegistrationBean camelServletRegistrationBean() {
-     ServletRegistrationBean registration = new ServletRegistrationBean(new CamelHttpTransportServlet(), "/cxf/*");
+     ServletRegistrationBean registration = new ServletRegistrationBean(new CamelHttpTransportServlet(), "/camelcxf/*");
      registration.setName("CamelServlet");
      return registration;
    }

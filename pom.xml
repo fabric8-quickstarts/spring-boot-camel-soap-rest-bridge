@@ -13,6 +13,7 @@
         <wsdl2rest.version>0.8.0.fuse-sb2-740011-redhat-00001</wsdl2rest.version>
         <cxf.version>3.2.7.fuse-sb2-740016-redhat-00001</cxf.version>
         <fuse.version>7.4.0.fuse-sb2-740019-redhat-00005</fuse.version>
+        <resteasy.version>3.6.1.Final</resteasy.version>
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
@@ -97,6 +98,16 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-security</artifactId>
         </dependency>
         <dependency>
@@ -104,9 +115,33 @@
             <artifactId>cxf-rt-rs-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.cxf.services.sts</groupId>
+            <artifactId>cxf-services-sts-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-transports-http-undertow</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>4.8.17.Final-redhat-00001</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-client</artifactId>
+            <version>${resteasy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jackson2-provider</artifactId>
+            <version>${resteasy.version}</version>
+       </dependency>
+        <!--dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-core-spi</artifactId>
+            <version>3.6.1.Final</version>
+        </dependency-->
         <dependency>
             <groupId>org.jboss.fuse.wsdl2rest</groupId>
             <artifactId>wsdl2rest-impl</artifactId>
