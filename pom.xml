@@ -223,9 +223,10 @@
                                 <wsdlOption>
                                     <wsdl>src/main/resources/weatherprovider.wsdl</wsdl>
                                     <faultSerialVersionUID>1</faultSerialVersionUID>
-                                    <extraargs>
-                                        <extraarg>-server</extraarg>
-                                    </extraargs>
+                                </wsdlOption>
+                                <wsdlOption>
+                                    <wsdl>src/main/resources/ws-trust-1.4-service.wsdl</wsdl>
+                                    <faultSerialVersionUID>1</faultSerialVersionUID>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>

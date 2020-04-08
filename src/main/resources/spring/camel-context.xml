@@ -107,7 +107,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
                 <entry key="user" value="alice"/>
                 <entry key="signaturePropFile" value="alice.properties"/>
                 <entry key="passwordCallbackClass" value="org.example.KeystorePasswordCallback"/>
-                <entry key="samlCallbackRef" value-ref="samlCallbackHandler"/>
+                <entry key="samlCallbackRef" value-ref="stsSamlCallbackHandler"/>
             </map>
         </constructor-arg>
     </bean>
@@ -117,6 +117,8 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
         <constructor-arg value="true" />
         <property name="confirmationMethod" value="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key" />
     </bean>
+
+    <bean id="stsSamlCallbackHandler" class="org.example.StsSamlCallbackHandler"/>
     <bean id="transportSTSProviderBean" class="org.apache.cxf.ws.security.sts.provider.SecurityTokenServiceProvider">
         <property name="issueOperation" ref="transportIssueDelegate"/>
     </bean>
