@@ -16,6 +16,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
+import org.apache.wss4j.common.saml.SAMLCallback;
 
 
 
@@ -46,11 +47,18 @@ public class StsSamlCallbackHandler implements CallbackHandler {
             SecurityToken token =
                 requestSecurityToken(SAML2_TOKEN_TYPE, BEARER_KEYTYPE, bus, stsEndpoint);
       
-            StaxUtils.print(token.getToken());
+            //StaxUtils.print(token.getToken());
+            for (int i = 0; i < callbacks.length; i++) {
+                if (callbacks[i] instanceof SAMLCallback) {
+                    SAMLCallback callback = (SAMLCallback) callbacks[i];
+                    callback.setAssertionElement(token.getToken());
+                }
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        
         
     }
 

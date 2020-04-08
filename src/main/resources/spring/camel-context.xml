@@ -103,7 +103,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     <bean class="org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor" id="wss4jOutInterceptor-sts-saml">
         <constructor-arg>
             <map>
-                <entry key="action" value="Timestamp SAMLTokenSigned"/>
+                <entry key="action" value="Timestamp SAMLTokenUnsigned"/>
                 <entry key="user" value="alice"/>
                 <entry key="signaturePropFile" value="alice.properties"/>
                 <entry key="passwordCallbackClass" value="org.example.KeystorePasswordCallback"/>
@@ -147,7 +147,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
         <property name="signaturePropertiesFile" value="alice.properties"/>
         <property name="signatureUsername" value="alice"/>
         <property name="callbackHandlerClass" value="org.example.KeystorePasswordCallback"/>
-        <property name="issuer" value="CXF_STS"/>
+        <property name="issuer" value="keycloak"/>
     </bean>
     
     <bean id="utValidator" class="org.example.KeycloakUTValidator">
