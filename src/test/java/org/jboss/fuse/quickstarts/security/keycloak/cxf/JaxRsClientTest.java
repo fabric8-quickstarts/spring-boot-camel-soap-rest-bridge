@@ -193,6 +193,46 @@ public class JaxRsClientTest {
         }
     }
 
+    
+    @Test
+    
+    public void testRestClientWithSTS() throws Exception {
+        
+        String accessToken = fetchAccessToken();
+
+        
+
+        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
+        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
+        camelctx.start();
+        try {
+            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
+            
+            Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class).register(LoggingFeature.class);
+            
+                        
+                
+            WeatherRequest request = new WeatherRequest();
+            request.setZipcode("M3H 2H8");
+            
+            
+            // POST @WeatherPortType#weatherRequest(WeatherRequest)
+            String payload = new ObjectMapper().writeValueAsString(request);
+            
+            System.out.println("the payload is ================>" + payload);
+
+            WeatherResponse response = client.target(JAXRS_URL + "/request").
+                request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+            Assert.assertEquals("M3H 2J8", response.getZip());
+            Assert.assertEquals("LA", response.getCity());
+            Assert.assertEquals("CA", response.getState());
+            Assert.assertEquals("95%", response.getHumidity());
+            Assert.assertEquals("28", response.getTemperature());           
+
+        } finally {
+            camelctx.stop();
+        }
+    }
 
     private String fetchAccessToken()
         throws UnsupportedEncodingException, IOException, ClientProtocolException {
