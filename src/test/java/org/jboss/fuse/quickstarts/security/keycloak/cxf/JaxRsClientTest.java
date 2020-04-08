@@ -74,6 +74,7 @@ import static org.junit.Assert.fail;
 public class JaxRsClientTest {
 
     public static Logger LOG = LoggerFactory.getLogger(JaxRsClientTest.class);
+    static String JAXWS_URI_STS = "http://localhost:8283/WeatherService";
     static String JAXWS_URI = "http://localhost:8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
     static String JAXRS_URL = "http://localhost:8080/camelcxf/jaxrs";
@@ -85,6 +86,17 @@ public class JaxRsClientTest {
         EndpointImpl impl = (EndpointImpl)Endpoint.publish(JAXWS_URI, implementor);
         Map<String, Object> inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned Signature");
+        inProps.put("signatureVerificationPropFile", "bob.properties");
+        impl.getProperties().put("ws-security.saml2.validator", "org.example.Saml2Validator");
+
+        impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
+        impl.getInInterceptors().add(new LoggingInInterceptor());
+        impl.getOutInterceptors().add(new LoggingOutInterceptor());
+        
+        impl = (EndpointImpl)Endpoint.publish(JAXWS_URI_STS, implementor);
+        
+        inProps = new HashMap<>();
+        inProps.put("action", "Timestamp SAMLTokenSigned");
         inProps.put("signatureVerificationPropFile", "bob.properties");
         impl.getProperties().put("ws-security.saml2.validator", "org.example.Saml2Validator");
 
@@ -223,7 +235,7 @@ public class JaxRsClientTest {
 
             WeatherResponse response = client.target(JAXRS_URL + "/request").
                 request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-            Assert.assertEquals("M3H 2J8", response.getZip());
+            Assert.assertEquals("M3H 2H8", response.getZip());
             Assert.assertEquals("LA", response.getCity());
             Assert.assertEquals("CA", response.getState());
             Assert.assertEquals("95%", response.getHumidity());
