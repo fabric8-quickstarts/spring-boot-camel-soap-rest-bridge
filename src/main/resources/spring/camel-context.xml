@@ -29,6 +29,9 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     </cxf:cxfEndpoint>
     
     <cxf:cxfEndpoint address="http://localhost:8283/WeatherService" id="sts">
+        <cxf:properties>
+            <entry key="schema-validation-enabled" value="true"/>
+        </cxf:properties>
         <cxf:outInterceptors>
             <ref bean="wss4jOutInterceptor-sts-saml"/>
             <ref bean="loggingOutInterceptor"/>
