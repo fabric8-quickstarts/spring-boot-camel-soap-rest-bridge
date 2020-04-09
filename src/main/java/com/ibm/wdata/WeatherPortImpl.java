@@ -32,7 +32,7 @@ public class WeatherPortImpl implements WeatherPortType {
      */
     public com.ibm.wdata.WeatherResponse weatherRequest(WeatherRequest weatherRequest) {
         LOG.info("Executing operation weatherRequest");
-        System.out.println(weatherRequest);
+        
         try {
             com.ibm.wdata.WeatherResponse _return = new com.ibm.wdata.WeatherResponse();
             _return.setZip(weatherRequest.getZipcode());

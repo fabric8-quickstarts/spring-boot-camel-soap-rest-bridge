@@ -19,8 +19,6 @@ public class GetBodyProcessor implements Processor  {
             if (userPrincipal != null) {
                 exchange.getIn().setHeader("UserName", userPrincipal.getName());
                 exchange.setProperty("cxf.UserName", userPrincipal.getName());
-                System.out.println("=========>" + userPrincipal.getName());
-                System.out.println("=========> class " + userPrincipal.getClass().getName());
             }
         }
         WeatherRequest request = exchange.getIn().getBody(WeatherRequest.class);

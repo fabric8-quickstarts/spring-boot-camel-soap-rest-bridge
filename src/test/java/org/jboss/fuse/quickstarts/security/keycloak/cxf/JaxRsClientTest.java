@@ -190,7 +190,7 @@ public class JaxRsClientTest {
             // POST @WeatherPortType#weatherRequest(WeatherRequest)
             String payload = new ObjectMapper().writeValueAsString(request);
             
-            System.out.println("the payload is ================>" + payload);
+           
 
             WeatherResponse response = client.target(JAXRS_URL + "/request").
                 request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
@@ -231,7 +231,7 @@ public class JaxRsClientTest {
             // POST @WeatherPortType#weatherRequest(WeatherRequest)
             String payload = new ObjectMapper().writeValueAsString(request);
             
-            System.out.println("the payload is ================>" + payload);
+            
 
             WeatherResponse response = client.target(JAXRS_URL + "/request").
                 request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);

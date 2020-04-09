@@ -42,11 +42,11 @@ public class StsSamlCallbackHandler implements CallbackHandler {
     
 
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        System.out.println("======>fetch saml2 token from sts/keycloak");
+       
         Bus bus = BusFactory.getDefaultBus();
         String stsEndpoint = "http://localhost:8080/cxf/UT";
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        System.out.println("=========>the user is " + message.getContextualProperty("cxf.UserName"));
+        
         this.userName = "karaf" + message.getContextualProperty("cxf.UserName");
        
         try {
