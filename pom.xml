@@ -17,6 +17,7 @@
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+        <keycloak.version>4.8.17.Final-redhat-00001</keycloak.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -30,7 +31,7 @@
             <dependency>
                 <groupId>org.keycloak.bom</groupId>
                 <artifactId>keycloak-adapter-bom</artifactId>
-                <version>4.8.17.Final-redhat-00001</version>
+                <version>${keycloak.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -125,7 +126,7 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
-            <version>4.8.17.Final-redhat-00001</version>
+            <version>${keycloak.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -137,11 +138,6 @@
             <artifactId>resteasy-jackson2-provider</artifactId>
             <version>${resteasy.version}</version>
        </dependency>
-        <!--dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-core-spi</artifactId>
-            <version>3.6.1.Final</version>
-        </dependency-->
         <dependency>
             <groupId>org.jboss.fuse.wsdl2rest</groupId>
             <artifactId>wsdl2rest-impl</artifactId>
