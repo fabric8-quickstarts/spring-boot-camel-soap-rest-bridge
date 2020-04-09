@@ -1,22 +1,29 @@
 package org.example;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
-import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.security.SecurityContext;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.wss4j.common.saml.SAMLCallback;
+
+
 
 
 
@@ -42,6 +49,15 @@ public class StsSamlCallbackHandler implements CallbackHandler {
         System.out.println("======>fetch saml2 token from sts/keycloak");
         Bus bus = BusFactory.getDefaultBus();
         String stsEndpoint = "http://localhost:8080/cxf/UT";
+        Message message = PhaseInterceptorChain.getCurrentMessage();
+        SecurityContext securityContext = message.get(SecurityContext.class);
+        HttpServletRequest httpRequest = (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
+        Principal principal = null;
+        if (securityContext != null) {
+            principal = securityContext.getUserPrincipal();
+            System.out.println("=========>" + principal.getName());
+            System.out.println("=========> class " + principal.getClass().getName());
+        }
        
         try {
             SecurityToken token =
