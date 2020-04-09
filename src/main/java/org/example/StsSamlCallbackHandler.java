@@ -1,14 +1,12 @@
 package org.example;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -16,8 +14,6 @@ import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.security.SecurityContext;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
@@ -35,7 +31,7 @@ public class StsSamlCallbackHandler implements CallbackHandler {
         "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
     private static final String BEARER_KEYTYPE = 
         "http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer";
-    
+    private String userName = null;
 
     public StsSamlCallbackHandler() {
         //
@@ -50,14 +46,8 @@ public class StsSamlCallbackHandler implements CallbackHandler {
         Bus bus = BusFactory.getDefaultBus();
         String stsEndpoint = "http://localhost:8080/cxf/UT";
         Message message = PhaseInterceptorChain.getCurrentMessage();
-        SecurityContext securityContext = message.get(SecurityContext.class);
-        HttpServletRequest httpRequest = (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
-        Principal principal = null;
-        if (securityContext != null) {
-            principal = securityContext.getUserPrincipal();
-            System.out.println("=========>" + principal.getName());
-            System.out.println("=========> class " + principal.getClass().getName());
-        }
+        System.out.println("=========>the user is " + message.getContextualProperty("cxf.UserName"));
+        this.userName = "karaf" + message.getContextualProperty("cxf.UserName");
        
         try {
             SecurityToken token =
@@ -89,7 +79,7 @@ public class StsSamlCallbackHandler implements CallbackHandler {
         stsClient.setEnableAppliesTo(false);
 
         Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put(SecurityConstants.USERNAME, "karafadmin");
+        properties.put(SecurityConstants.USERNAME, this.userName);
         properties.put(SecurityConstants.CALLBACK_HANDLER, new org.example.UTPasswordCallback());
         
 
