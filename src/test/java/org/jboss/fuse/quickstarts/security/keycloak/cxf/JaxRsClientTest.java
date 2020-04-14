@@ -16,6 +16,7 @@
 package org.jboss.fuse.quickstarts.security.keycloak.cxf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashMap;
@@ -44,6 +45,10 @@ import org.apache.camel.ServiceStatus;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
+import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.io.CachedOutputStream;
+import org.apache.cxf.jaxrs.impl.ResponseImpl;
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.http.HttpHeaders;
@@ -69,6 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class JaxRsClientTest {
@@ -272,15 +278,33 @@ public class JaxRsClientTest {
             // POST @WeatherPortType#weatherRequest(WeatherRequest)
             String payload = new ObjectMapper().writeValueAsString(request);
             
-            WeatherResponse response  = null;
+           
             try {
-                response = client.target(JAXRS_URL + "/request").
+                client.target(JAXRS_URL + "/request").
                     request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
                 fail("should throw schema validation exception since \"M3H 278\" isn't a valid zip code");
-            } catch (Exception ex) {
-                
+            } catch (javax.ws.rs.WebApplicationException ex) {
+                org.apache.cxf.jaxrs.impl.ResponseImpl resp = (ResponseImpl)ex.getResponse();
+                             
+                InputStream is = (InputStream)resp.getEntity();
+                if (is != null) {
+                    CachedOutputStream bos = new CachedOutputStream();
+                    try {
+                        IOUtils.copy(is, bos);
+
+                        bos.flush();
+                        is.close();
+                        bos.close();
+                        String faultMessage = new String(bos.getBytes());
+                        assertTrue(faultMessage.contains("org.apache.cxf.interceptor.Fault: Marshalling Error: cvc-pattern-valid: Value 'M3H 278' is not facet-valid with respect to pattern '[A-Z][0-9][A-Z] [0-9][A-Z][0-9]' for type 'zipType'."));
+                    } catch (IOException e) {
+                        throw new Fault(e);
+                    }
+                }
+
             }
-                     
+            
+            
 
         } finally {
             camelctx.stop();
@@ -343,5 +367,8 @@ public class JaxRsClientTest {
             }
         }
     }
+    
+    
+    
 
 }

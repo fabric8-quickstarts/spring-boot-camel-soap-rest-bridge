@@ -52,6 +52,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
             type="com.ibm.wdata.WeatherRequest"
             outType="com.ibm.wdata.WeatherResponse" 
             consumes="application/json"
+            produces="application/json"
             >
             <to uri="direct:weatherRequest"/>
           </post>
