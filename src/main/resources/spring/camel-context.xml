@@ -43,8 +43,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
             <xmljson id="xmljson"/>
         </dataFormats>
         
-        <restConfiguration component="servlet" host="localhost" port="8080" bindingMode="auto">
-        </restConfiguration>
+        <restConfiguration component="servlet" host="localhost" port="8080" bindingMode="auto" clientRequestValidation="true"/>
 
         <rest id="id-d01f38ae-72ce-41de-877d-6f50f0a9b0ad" path="/jaxrs">
 

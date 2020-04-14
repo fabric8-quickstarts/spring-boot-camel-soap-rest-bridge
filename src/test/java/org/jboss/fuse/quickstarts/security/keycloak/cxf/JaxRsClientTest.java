@@ -210,6 +210,44 @@ public class JaxRsClientTest {
             camelctx.stop();
         }
     }
+    
+    @Test
+    
+    public void testRestClientWithInvalidPayload() throws Exception {
+        
+        String accessToken = fetchAccessToken();
+
+        
+
+        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
+        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
+        camelctx.start();
+        try {
+            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
+            
+            Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class).register(LoggingFeature.class);
+            
+                        
+                
+            WeatherRequest request = new WeatherRequest();
+            request.setZipcode("M3H 2J8");
+            
+            
+            // POST @WeatherPortType#weatherRequest(WeatherRequest)
+            String payload = new ObjectMapper().writeValueAsString(request);
+            try {
+                client.target(JAXRS_URL + "/request").
+                    request().accept(MediaType.APPLICATION_XML).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+                fail("we have enabled clientRequestValidation for camel rest dsl, but the request accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException");
+            } catch (javax.ws.rs.NotAcceptableException ex) {
+                assertTrue(ex.getMessage().contains("HTTP 406 Not Acceptable"));
+            }
+            
+
+        } finally {
+            camelctx.stop();
+        }
+    }
 
     
     @Test
