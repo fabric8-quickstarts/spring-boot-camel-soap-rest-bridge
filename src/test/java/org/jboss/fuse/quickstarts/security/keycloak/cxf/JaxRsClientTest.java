@@ -272,15 +272,15 @@ public class JaxRsClientTest {
             // POST @WeatherPortType#weatherRequest(WeatherRequest)
             String payload = new ObjectMapper().writeValueAsString(request);
             
-            
-
-            WeatherResponse response = client.target(JAXRS_URL + "/request").
-                request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-            Assert.assertEquals("M3H 2H8", response.getZip());
-            Assert.assertEquals("LA", response.getCity());
-            Assert.assertEquals("CA", response.getState());
-            Assert.assertEquals("95%", response.getHumidity());
-            Assert.assertEquals("28", response.getTemperature());           
+            WeatherResponse response  = null;
+            try {
+                response = client.target(JAXRS_URL + "/request").
+                    request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+                fail("should throw schema validation exception since \"M3H 278\" isn't a valid zip code");
+            } catch (Exception ex) {
+                
+            }
+                     
 
         } finally {
             camelctx.stop();
