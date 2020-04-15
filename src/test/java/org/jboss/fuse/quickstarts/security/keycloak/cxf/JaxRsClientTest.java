@@ -18,17 +18,10 @@ package org.jboss.fuse.quickstarts.security.keycloak.cxf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -46,11 +39,7 @@ import com.ibm.wdata.WeatherPortType;
 import com.ibm.wdata.WeatherRequest;
 import com.ibm.wdata.WeatherResponse;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.ProducerTemplate;
-import org.apache.camel.ServiceStatus;
-import org.apache.camel.spring.SpringCamelContext;
-import org.apache.camel.spring.handler.CamelNamespaceHandler;
+
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
@@ -81,12 +70,7 @@ import org.keycloak.util.BasicAuthHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.beans.factory.xml.NamespaceHandler;
-import org.springframework.beans.factory.xml.NamespaceHandlerResolver;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -159,32 +143,7 @@ public class JaxRsClientTest {
         }
     }
 
-    @Test
-    public void testCamelClient() throws Exception {
-
-        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
-        CamelContext camelctx = createSingleCamelContext(resourceUrl, null);
-        camelctx.start();
-        try {
-            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
-
-            WeatherRequest request = new WeatherRequest();
-            request.setZipcode("M3H 2J8");
-            ProducerTemplate producer = camelctx.createProducerTemplate();
-
-            WeatherResponse response = producer.requestBody("direct:weatherRequest", request,
-                                                            WeatherResponse.class);
-
-            Assert.assertEquals("M3H 2J8", response.getZip());
-            Assert.assertEquals("LA", response.getCity());
-            Assert.assertEquals("CA", response.getState());
-            Assert.assertEquals("95%", response.getHumidity());
-            Assert.assertEquals("28", response.getTemperature());
-
-        } finally {
-            camelctx.stop();
-        }
-    }
+    
 
     @Test
 
@@ -360,93 +319,5 @@ public class JaxRsClientTest {
         }
     }
 
-    public static SpringCamelContext createSingleCamelContext(URL contextUrl, ClassLoader classsLoader)
-        throws Exception {
-        List<SpringCamelContext> list = createCamelContextList(new UrlResource(contextUrl), classsLoader);
-
-        return list.get(0);
-    }
-
-    private static List<SpringCamelContext> createCamelContextList(Resource resource, ClassLoader classLoader)
-        throws Exception {
-
-        if (classLoader == null)
-            classLoader = JaxRsClientTest.class.getClassLoader();
-
-        GenericApplicationContext appContext = new GenericApplicationContext();
-        appContext.setClassLoader(classLoader);
-
-        XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appContext) {
-            @Override
-            protected NamespaceHandlerResolver createDefaultNamespaceHandlerResolver() {
-                NamespaceHandlerResolver defaultResolver = super.createDefaultNamespaceHandlerResolver();
-                return new CamelNamespaceHandlerResolver(defaultResolver);
-            }
-        };
-        xmlReader.loadBeanDefinitions(resource);
-
-        SpringCamelContext.setNoStart(true);
-        ProxyUtils.invokeProxied(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                appContext.refresh();
-                return null;
-            }
-        }, classLoader);
-        SpringCamelContext.setNoStart(false);
-
-        List<SpringCamelContext> result = new ArrayList<>();
-        for (String name : appContext.getBeanNamesForType(SpringCamelContext.class)) {
-            result.add(appContext.getBean(name, SpringCamelContext.class));
-        }
-
-        return Collections.unmodifiableList(result);
-    }
-
-    private static class CamelNamespaceHandlerResolver implements NamespaceHandlerResolver {
-
-        private final NamespaceHandlerResolver delegate;
-        private final NamespaceHandler camelHandler;
-
-        CamelNamespaceHandlerResolver(NamespaceHandlerResolver delegate) {
-            this.delegate = delegate;
-            this.camelHandler = new CamelNamespaceHandler();
-            this.camelHandler.init();
-        }
-
-        @Override
-        public NamespaceHandler resolve(String namespaceUri) {
-            if ("http://camel.apache.org/schema/spring".equals(namespaceUri)) {
-                return camelHandler;
-            } else {
-                return delegate.resolve(namespaceUri);
-            }
-        }
-    }
-
-    /**
-     * A utility class to run arbitrary code via a {@link Proxy} instance.
-     */
-    private static class ProxyUtils {
-
-        private ProxyUtils() {
-            // Hide ctor
-        }
-
-
-        public static void invokeProxied(final Callable<?> callable, final ClassLoader classLoader)
-            throws Exception {
-            Callable<?> callableProxy = (Callable<?>)Proxy.newProxyInstance(classLoader, new Class<?>[] {
-                                                                                                         Callable.class
-            }, new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    callable.call();
-                    return null;
-                }
-            });
-            callableProxy.call();
-        }
-    }
-
+    
 }
