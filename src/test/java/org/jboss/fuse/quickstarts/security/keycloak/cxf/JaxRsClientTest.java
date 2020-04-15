@@ -18,10 +18,17 @@ package org.jboss.fuse.quickstarts.security.keycloak.cxf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -42,6 +49,8 @@ import com.ibm.wdata.WeatherResponse;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.ServiceStatus;
+import org.apache.camel.spring.SpringCamelContext;
+import org.apache.camel.spring.handler.CamelNamespaceHandler;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
@@ -62,7 +71,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.jboss.fuse.wsdl2rest.util.SpringCamelContextFactory;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -73,6 +81,12 @@ import org.keycloak.util.BasicAuthHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.springframework.beans.factory.xml.NamespaceHandler;
+import org.springframework.beans.factory.xml.NamespaceHandlerResolver;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -88,7 +102,7 @@ public class JaxRsClientTest {
     @BeforeClass
     public static void beforeClass() {
         Object implementor = new WeatherPortImpl();
-     
+
         EndpointImpl impl = (EndpointImpl)Endpoint.publish(JAXWS_URI, implementor);
         Map<String, Object> inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned Signature");
@@ -98,9 +112,9 @@ public class JaxRsClientTest {
         impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
         impl.getInInterceptors().add(new LoggingInInterceptor());
         impl.getOutInterceptors().add(new LoggingOutInterceptor());
-        
+
         impl = (EndpointImpl)Endpoint.publish(JAXWS_URI_STS, implementor);
-        
+
         inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned");
         inProps.put("signatureVerificationPropFile", "bob.properties");
@@ -110,7 +124,6 @@ public class JaxRsClientTest {
         impl.getInInterceptors().add(new LoggingInInterceptor());
         impl.getOutInterceptors().add(new LoggingOutInterceptor());
     }
-
 
     @BeforeClass
     public static void initLogging() {
@@ -122,7 +135,7 @@ public class JaxRsClientTest {
     public static void cleanupLogging() {
         SLF4JBridgeHandler.uninstall();
     }
-    
+
     @Test
     public void testJavaClient() throws Exception {
 
@@ -141,212 +154,157 @@ public class JaxRsClientTest {
             Assert.assertEquals("95%", response.getHumidity());
             Assert.assertEquals("28", response.getTemperature());
         } catch (Exception ex) {
-            Assert.assertEquals("A security error was encountered when verifying the message", ex.getMessage());
+            Assert.assertEquals("A security error was encountered when verifying the message",
+                                ex.getMessage());
         }
     }
-    
+
     @Test
     public void testCamelClient() throws Exception {
 
         URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
-        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
+        CamelContext camelctx = createSingleCamelContext(resourceUrl, null);
         camelctx.start();
         try {
             Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
-            
+
             WeatherRequest request = new WeatherRequest();
             request.setZipcode("M3H 2J8");
             ProducerTemplate producer = camelctx.createProducerTemplate();
-            
-            WeatherResponse response = producer.requestBody("direct:weatherRequest", request, WeatherResponse.class);
-            
+
+            WeatherResponse response = producer.requestBody("direct:weatherRequest", request,
+                                                            WeatherResponse.class);
+
             Assert.assertEquals("M3H 2J8", response.getZip());
             Assert.assertEquals("LA", response.getCity());
             Assert.assertEquals("CA", response.getState());
             Assert.assertEquals("95%", response.getHumidity());
             Assert.assertEquals("28", response.getTemperature());
-            
+
         } finally {
             camelctx.stop();
         }
     }
 
     @Test
-   
+
     public void testRestClient() throws Exception {
-        
+
         String accessToken = fetchAccessToken();
 
-        
+        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
+            .register(LoggingFeature.class);
 
-        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
-        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
-        camelctx.start();
-        try {
-            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
-            
-            Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class).register(LoggingFeature.class);
-            
-                        
-                
-            WeatherRequest request = new WeatherRequest();
-            request.setZipcode("M3H 2J8");
-            
-            
-            // POST @WeatherPortType#weatherRequest(WeatherRequest)
-            String payload = new ObjectMapper().writeValueAsString(request);
-            
-           
+        WeatherRequest request = new WeatherRequest();
+        request.setZipcode("M3H 2J8");
 
-            WeatherResponse response = client.target(JAXRS_URL + "/request").
-                request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-            Assert.assertEquals("M3H 2J8", response.getZip());
-            Assert.assertEquals("LA", response.getCity());
-            Assert.assertEquals("CA", response.getState());
-            Assert.assertEquals("95%", response.getHumidity());
-            Assert.assertEquals("28", response.getTemperature());           
+        // POST @WeatherPortType#weatherRequest(WeatherRequest)
+        String payload = new ObjectMapper().writeValueAsString(request);
 
-        } finally {
-            camelctx.stop();
-        }
+        WeatherResponse response = client.target(JAXRS_URL + "/request").request()
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+        Assert.assertEquals("M3H 2J8", response.getZip());
+        Assert.assertEquals("LA", response.getCity());
+        Assert.assertEquals("CA", response.getState());
+        Assert.assertEquals("95%", response.getHumidity());
+        Assert.assertEquals("28", response.getTemperature());
+
     }
-    
+
     @Test
-    
+
     public void testRestClientWithInvalidPayload() throws Exception {
-        
+
         String accessToken = fetchAccessToken();
 
-        
+        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
+            .register(LoggingFeature.class);
 
-        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
-        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
-        camelctx.start();
+        WeatherRequest request = new WeatherRequest();
+        request.setZipcode("M3H 2J8");
+
+        // POST @WeatherPortType#weatherRequest(WeatherRequest)
+        String payload = new ObjectMapper().writeValueAsString(request);
         try {
-            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
-            
-            Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class).register(LoggingFeature.class);
-            
-                        
-                
-            WeatherRequest request = new WeatherRequest();
-            request.setZipcode("M3H 2J8");
-            
-            
-            // POST @WeatherPortType#weatherRequest(WeatherRequest)
-            String payload = new ObjectMapper().writeValueAsString(request);
-            try {
-                client.target(JAXRS_URL + "/request").
-                    request().accept(MediaType.APPLICATION_XML).header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-                fail("we have enabled clientRequestValidation for camel rest dsl, but the request accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException");
-            } catch (javax.ws.rs.NotAcceptableException ex) {
-                assertTrue(ex.getMessage().contains("HTTP 406 Not Acceptable"));
-            }
-            
-
-        } finally {
-            camelctx.stop();
+            client.target(JAXRS_URL + "/request").request().accept(MediaType.APPLICATION_XML)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+            fail("we have enabled clientRequestValidation for camel rest dsl, but the request accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException");
+        } catch (javax.ws.rs.NotAcceptableException ex) {
+            assertTrue(ex.getMessage().contains("HTTP 406 Not Acceptable"));
         }
+
     }
 
-    
     @Test
-    
+
     public void testRestClientWithSTS() throws Exception {
-        
+
         String accessToken = fetchAccessToken();
 
-        
+        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
+            .register(LoggingFeature.class);
 
-        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
-        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
-        camelctx.start();
-        try {
-            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
-            
-            Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class).register(LoggingFeature.class);
-            
-                        
-                
-            WeatherRequest request = new WeatherRequest();
-            request.setZipcode("M3H 2H8");
-            
-            
-            // POST @WeatherPortType#weatherRequest(WeatherRequest)
-            String payload = new ObjectMapper().writeValueAsString(request);
-            
-            
+        WeatherRequest request = new WeatherRequest();
+        request.setZipcode("M3H 2H8");
 
-            WeatherResponse response = client.target(JAXRS_URL + "/request").
-                request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-            Assert.assertEquals("M3H 2H8", response.getZip());
-            Assert.assertEquals("LA", response.getCity());
-            Assert.assertEquals("CA", response.getState());
-            Assert.assertEquals("95%", response.getHumidity());
-            Assert.assertEquals("28", response.getTemperature());           
+        // POST @WeatherPortType#weatherRequest(WeatherRequest)
+        String payload = new ObjectMapper().writeValueAsString(request);
 
-        } finally {
-            camelctx.stop();
-        }
+        WeatherResponse response = client.target(JAXRS_URL + "/request").request()
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+        Assert.assertEquals("M3H 2H8", response.getZip());
+        Assert.assertEquals("LA", response.getCity());
+        Assert.assertEquals("CA", response.getState());
+        Assert.assertEquals("95%", response.getHumidity());
+        Assert.assertEquals("28", response.getTemperature());
+
     }
-    
-    
-@Test
-    
+
+    @Test
+
     public void testRestClientWithSTSInvalidZipCode() throws Exception {
-        
+
         String accessToken = fetchAccessToken();
 
-        
+        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
+            .register(LoggingFeature.class);
 
-        URL resourceUrl = getClass().getResource("/spring/camel-context.xml");
-        CamelContext camelctx = SpringCamelContextFactory.createSingleCamelContext(resourceUrl, null);
-        camelctx.start();
+        WeatherRequest request = new WeatherRequest();
+        request.setZipcode("M3H 278");
+
+        // POST @WeatherPortType#weatherRequest(WeatherRequest)
+        String payload = new ObjectMapper().writeValueAsString(request);
+
         try {
-            Assert.assertEquals(ServiceStatus.Started, camelctx.getStatus());
-            
-            Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class).register(LoggingFeature.class);
-            
-                        
-                
-            WeatherRequest request = new WeatherRequest();
-            request.setZipcode("M3H 278");
-            
-            
-            // POST @WeatherPortType#weatherRequest(WeatherRequest)
-            String payload = new ObjectMapper().writeValueAsString(request);
-            
-           
-            try {
-                client.target(JAXRS_URL + "/request").
-                    request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-                fail("should throw schema validation exception since \"M3H 278\" isn't a valid zip code");
-            } catch (javax.ws.rs.WebApplicationException ex) {
-                org.apache.cxf.jaxrs.impl.ResponseImpl resp = (ResponseImpl)ex.getResponse();
-                             
-                InputStream is = (InputStream)resp.getEntity();
-                if (is != null) {
-                    CachedOutputStream bos = new CachedOutputStream();
-                    try {
-                        IOUtils.copy(is, bos);
+            client.target(JAXRS_URL + "/request").request()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+            fail("should throw schema validation exception since \"M3H 278\" isn't a valid zip code");
+        } catch (javax.ws.rs.WebApplicationException ex) {
+            org.apache.cxf.jaxrs.impl.ResponseImpl resp = (ResponseImpl)ex.getResponse();
 
-                        bos.flush();
-                        is.close();
-                        bos.close();
-                        String faultMessage = new String(bos.getBytes());
-                        assertTrue(faultMessage.contains("org.apache.cxf.interceptor.Fault: Marshalling Error: cvc-pattern-valid: Value 'M3H 278' is not facet-valid with respect to pattern '[A-Z][0-9][A-Z] [0-9][A-Z][0-9]' for type 'zipType'."));
-                    } catch (IOException e) {
-                        throw new Fault(e);
-                    }
+            InputStream is = (InputStream)resp.getEntity();
+            if (is != null) {
+                CachedOutputStream bos = new CachedOutputStream();
+                try {
+                    IOUtils.copy(is, bos);
+
+                    bos.flush();
+                    is.close();
+                    bos.close();
+                    String faultMessage = new String(bos.getBytes());
+                    assertTrue(faultMessage
+                        .contains("org.apache.cxf.interceptor.Fault: Marshalling Error: cvc-pattern-valid: Value 'M3H 278' is not facet-valid with respect to pattern '[A-Z][0-9][A-Z] [0-9][A-Z][0-9]' for type 'zipType'."));
+                } catch (IOException e) {
+                    throw new Fault(e);
                 }
-
             }
-            
-            
 
-        } finally {
-            camelctx.stop();
         }
+
     }
 
     private String fetchAccessToken()
@@ -354,7 +312,7 @@ public class JaxRsClientTest {
         String accessToken = null;
 
         try (CloseableHttpClient client = HttpClients.createMinimal()) {
-            // "4.3.  Resource Owner Password Credentials Grant"
+            // "4.3. Resource Owner Password Credentials Grant"
             // from https://tools.ietf.org/html/rfc6749#section-4.3
             // we use "resource owner" credentials directly to obtain the token
             HttpPost post = new HttpPost("http://localhost:8180/auth/realms/fuse7karaf/protocol/openid-connect/token");
@@ -383,10 +341,6 @@ public class JaxRsClientTest {
         return accessToken;
     }
 
-    
-    
-    
-
     @Test
     public void helloEmbeddedAuthenticated() throws Exception {
 
@@ -405,8 +359,94 @@ public class JaxRsClientTest {
             }
         }
     }
-    
-    
-    
+
+    public static SpringCamelContext createSingleCamelContext(URL contextUrl, ClassLoader classsLoader)
+        throws Exception {
+        List<SpringCamelContext> list = createCamelContextList(new UrlResource(contextUrl), classsLoader);
+
+        return list.get(0);
+    }
+
+    private static List<SpringCamelContext> createCamelContextList(Resource resource, ClassLoader classLoader)
+        throws Exception {
+
+        if (classLoader == null)
+            classLoader = JaxRsClientTest.class.getClassLoader();
+
+        GenericApplicationContext appContext = new GenericApplicationContext();
+        appContext.setClassLoader(classLoader);
+
+        XmlBeanDefinitionReader xmlReader = new XmlBeanDefinitionReader(appContext) {
+            @Override
+            protected NamespaceHandlerResolver createDefaultNamespaceHandlerResolver() {
+                NamespaceHandlerResolver defaultResolver = super.createDefaultNamespaceHandlerResolver();
+                return new CamelNamespaceHandlerResolver(defaultResolver);
+            }
+        };
+        xmlReader.loadBeanDefinitions(resource);
+
+        SpringCamelContext.setNoStart(true);
+        ProxyUtils.invokeProxied(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                appContext.refresh();
+                return null;
+            }
+        }, classLoader);
+        SpringCamelContext.setNoStart(false);
+
+        List<SpringCamelContext> result = new ArrayList<>();
+        for (String name : appContext.getBeanNamesForType(SpringCamelContext.class)) {
+            result.add(appContext.getBean(name, SpringCamelContext.class));
+        }
+
+        return Collections.unmodifiableList(result);
+    }
+
+    private static class CamelNamespaceHandlerResolver implements NamespaceHandlerResolver {
+
+        private final NamespaceHandlerResolver delegate;
+        private final NamespaceHandler camelHandler;
+
+        CamelNamespaceHandlerResolver(NamespaceHandlerResolver delegate) {
+            this.delegate = delegate;
+            this.camelHandler = new CamelNamespaceHandler();
+            this.camelHandler.init();
+        }
+
+        @Override
+        public NamespaceHandler resolve(String namespaceUri) {
+            if ("http://camel.apache.org/schema/spring".equals(namespaceUri)) {
+                return camelHandler;
+            } else {
+                return delegate.resolve(namespaceUri);
+            }
+        }
+    }
+
+    /**
+     * A utility class to run arbitrary code via a {@link Proxy} instance.
+     */
+    private static class ProxyUtils {
+
+        private ProxyUtils() {
+            // Hide ctor
+        }
+
+
+        public static void invokeProxied(final Callable<?> callable, final ClassLoader classLoader)
+            throws Exception {
+            Callable<?> callableProxy = (Callable<?>)Proxy.newProxyInstance(classLoader, new Class<?>[] {
+                                                                                                         Callable.class
+            }, new InvocationHandler() {
+                @Override
+                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    callable.call();
+                    return null;
+                }
+            });
+            callableProxy.call();
+        }
+    }
 
 }

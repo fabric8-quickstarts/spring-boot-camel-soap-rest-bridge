@@ -10,7 +10,6 @@
     <name>Fabric8 :: Quickstarts :: Spring-Boot :: Camel XML</name>
     <description>Spring Boot example running a Camel route defined in XML</description>
     <properties>
-        <wsdl2rest.version>0.8.0.fuse-sb2-740011-redhat-00001</wsdl2rest.version>
         <cxf.version>3.2.7.fuse-sb2-740016-redhat-00001</cxf.version>
         <fuse.version>7.4.0.fuse-sb2-740019-redhat-00005</fuse.version>
         <resteasy.version>3.6.1.Final</resteasy.version>
@@ -79,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-jackson</artifactId>
+            <artifactId>camel-jackson-starter</artifactId>
         </dependency>
 
         <dependency>
@@ -133,11 +132,6 @@
             <artifactId>resteasy-jackson2-provider</artifactId>
             <version>${resteasy.version}</version>
        </dependency>
-        <dependency>
-            <groupId>org.jboss.fuse.wsdl2rest</groupId>
-            <artifactId>wsdl2rest-impl</artifactId>
-            <version>${wsdl2rest.version}</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
