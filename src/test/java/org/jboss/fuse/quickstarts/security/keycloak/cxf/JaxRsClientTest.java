@@ -81,7 +81,8 @@ public class JaxRsClientTest {
     static String JAXWS_URI_STS = "http://localhost:8283/WeatherService";
     static String JAXWS_URI = "http://localhost:8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
-    static String JAXRS_URL = "http://camel-bridge-springboot-xml-openshift.192.168.64.12.nip.io/camelcxf/jaxrs";
+    static String CAMEL_ROUTE_HOST = "http://camel-bridge-springboot-xml-openshift.192.168.64.12.nip.io";
+    static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
 
     @BeforeClass
     public static void beforeClass() {
@@ -309,7 +310,7 @@ public class JaxRsClientTest {
             try (CloseableHttpClient client = HttpClients.createMinimal()) {
                 // "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
                 // https://tools.ietf.org/html/rfc6750
-                HttpGet get = new HttpGet("http://localhost:8080/cxf/jaxrs/service/hello/hi");
+                HttpGet get = new HttpGet(CAMEL_ROUTE_HOST + "/cxf/jaxrs/service/hello/hi");
                 get.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
                 CloseableHttpResponse response = client.execute(get);
 
