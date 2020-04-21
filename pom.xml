@@ -10,8 +10,8 @@
     <name>Fabric8 :: Quickstarts :: Spring-Boot :: Camel XML</name>
     <description>Spring Boot example running a Camel route defined in XML</description>
     <properties>
-        <cxf.version>3.2.7.fuse-sb2-740016-redhat-00001</cxf.version>
-        <fuse.version>7.4.0.fuse-sb2-740019-redhat-00005</fuse.version>
+        <cxf.version>3.2.7.fuse-sb2-760024-redhat-00001</cxf.version>
+        <fuse.bom.version>7.6.0.fuse-sb2-760028-redhat-00001</fuse.bom.version>
         <resteasy.version>3.6.1.Final</resteasy.version>
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +23,7 @@
             <dependency>
                 <groupId>org.jboss.redhat-fuse</groupId>
                 <artifactId>fuse-springboot-bom</artifactId>
-                <version>${fuse.version}</version>
+                <version>${fuse.bom.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -184,9 +184,22 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <argLine>-DenableImageStreamDetection=true</argLine>
+                    <excludes>
+                        <exclude>**/*Test.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.jboss.redhat-fuse</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${fuse.version}</version>
+                <version>${fuse.bom.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -223,4 +236,27 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>openshift</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.redhat-fuse</groupId>
+                        <artifactId>fabric8-maven-plugin</artifactId>
+                        <version>${fuse.bom.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>resource</goal>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

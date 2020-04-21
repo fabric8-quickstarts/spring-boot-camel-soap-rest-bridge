@@ -81,7 +81,7 @@ public class JaxRsClientTest {
     static String JAXWS_URI_STS = "http://localhost:8283/WeatherService";
     static String JAXWS_URI = "http://localhost:8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
-    static String JAXRS_URL = "http://localhost:8080/camelcxf/jaxrs";
+    static String JAXRS_URL = "http://camel-bridge-springboot-xml-openshift.192.168.64.12.nip.io/camelcxf/jaxrs";
 
     @BeforeClass
     public static void beforeClass() {
