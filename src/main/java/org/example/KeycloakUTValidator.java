@@ -75,7 +75,7 @@ public class KeycloakUTValidator implements Validator {
             .username(usernameToken.getName())
             .password(usernameToken.getPassword())
             .clientId("admin-cli")
-            .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
+            .resteasyClient(new ResteasyClientBuilder().disableTrustManager().connectionPoolSize(10).build())
             .build();
 
         try {
@@ -84,6 +84,7 @@ public class KeycloakUTValidator implements Validator {
             // We allow 403 here as we only care about authentication. 403 means authentication succeeds but
             // the user might not have the permissions to access the admin-cli
         } catch (RuntimeException ex) {
+            ex.printStackTrace();
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION);
         }
 

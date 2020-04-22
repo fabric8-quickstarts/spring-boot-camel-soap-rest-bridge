@@ -19,10 +19,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import java.security.cert.CertificateException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -56,9 +61,12 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 
 import org.junit.AfterClass;
@@ -84,6 +92,7 @@ public class JaxRsClientTest {
     static String CAMEL_ROUTE_HOST = "http://camel-bridge-springboot-xml-openshift.192.168.64.12.nip.io";
     //static String CAMEL_ROUTE_HOST = "http://localhost:8080";
     static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
+    CloseableHttpClient httpClient;
 
     @BeforeClass
     public static void beforeClass() {
@@ -272,11 +281,12 @@ public class JaxRsClientTest {
         throws UnsupportedEncodingException, IOException, ClientProtocolException {
         String accessToken = null;
 
-        try (CloseableHttpClient client = HttpClients.createMinimal()) {
+        try (CloseableHttpClient client = getCloseableHttpClient()) {
             // "4.3. Resource Owner Password Credentials Grant"
             // from https://tools.ietf.org/html/rfc6749#section-4.3
             // we use "resource owner" credentials directly to obtain the token
-            HttpPost post = new HttpPost("http://192.168.0.11:8180/auth/realms/fuse7karaf/protocol/openid-connect/token");
+            HttpPost post = new HttpPost("https://sso-openshift.192.168.64.12.nip.io/auth/realms/fuse7karaf/protocol/openid-connect/token");
+            //HttpPost post = new HttpPost("https://192.168.0.11:8543/auth/realms/fuse7karaf/protocol/openid-connect/token");
             LinkedList<NameValuePair> params = new LinkedList<>();
             params.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));
             params.add(new BasicNameValuePair("username", "admin"));
@@ -319,6 +329,31 @@ public class JaxRsClientTest {
                 response.close();
             }
         }
+    }
+    
+    private CloseableHttpClient getCloseableHttpClient()
+    {
+        if (httpClient != null) {
+            return httpClient;
+        }
+        try {
+            httpClient = HttpClients.custom().
+                    setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).
+                    setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy()
+                    {
+                        public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
+                        {
+                            return true;
+                        }
+                    }).build()).build();
+        } catch (KeyManagementException e) {
+            LOG.error("KeyManagementException in creating http client instance", e);
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("NoSuchAlgorithmException in creating http client instance", e);
+        } catch (KeyStoreException e) {
+            LOG.error("KeyStoreException in creating http client instance", e);
+        }
+        return httpClient;
     }
 
     
