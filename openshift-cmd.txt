@@ -1,0 +1,70 @@
+
+for resource in sso74-image-stream.json \
+  sso74-https.json \
+  sso74-postgresql.json \
+  sso74-postgresql-persistent.json \
+  sso74-x509-https.json \
+  sso74-x509-postgresql-persistent.json
+do
+  oc create -n openshift -f \
+  https://raw.githubusercontent.com/jboss-container-images/redhat-sso-7-openshift-image/sso74-dev/templates/${resource}
+done
+
+oc -n openshift import-image redhat-sso74-openshift:1.0(no this)
+
+oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
+
+oc new-app --template=sso74-x509-https
+
+
+ * With parameters:
+        * Application Name=sso
+        * Custom RH-SSO Server Hostname=
+        * JGroups Cluster Password=TxbA01wPwtG3bT4S2ijXyKRRItGaxBoS # generated
+        * Datasource Minimum Pool Size=
+        * Datasource Maximum Pool Size=
+        * Datasource Transaction Isolation=
+        * ImageStream Namespace=openshift
+        * RH-SSO Administrator Username=YlJnaCqm # generated
+        * RH-SSO Administrator Password=1OECXKPfyyryGDt5eku1hIJYhtbGf2b6 # generated
+        * RH-SSO Realm=
+        * RH-SSO Service Username=
+        * RH-SSO Service Password=
+        * Container Memory Limit=1Gi
+
+
+
+./standalone.sh -Dkeycloak.migration.action=export -Dkeycloak.migration.realmName=fuse7karaf -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=bak.json
+./standalone.sh -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=<FILE TO IMPORT> -Dkeycloak.migration.strategy=OVERWRITE_EXISTING
+
+./standalone.sh -Djboss.socket.binding.port-offset=100 -Djboss.bind.address=192.168.0.11
+
+minishift timezone --set America/Toronto
+579  ./minishift start
+  580  oc whoami
+  581  oc adm policy add-cluster-role-to-user cluster-admin developer
+  582  oc login -u system:admin
+  583  oc adm policy add-cluster-role-to-user cluster-admin developer
+  584  oc login -u developer -p developer
+  585  oc project openshift
+  586  oc create secret generic yfang     --from-file=.dockerconfigjson=/Users/ffang/.docker/config.json     --type=kubernetes.io/dockerconfigjson
+  587  oc secrets link default yfang --for=pull
+  588  oc secrets link builder yfang
+  589  BASEURL=https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001
+  590  oc get is
+  591  oc create  -f ${BASEURL}/fis-image-streams.json
+  592  oc get is
+  593  oc get is
+  594  oc get is
+  595  oc process --parameters -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001/fis-console-namespace-template.json
+  596  oc create  -f ${BASEURL}/fis-console-namespace-template.json
+  597  oc new-app -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001/fis-console-namespace-template.json
+  599  for template in eap-camel-amq-template.json  eap-camel-cdi-template.json  eap-camel-cxf-jaxrs-template.json  eap-camel-cxf-jaxws-template.json  eap-camel-jpa-template.json  karaf-camel-amq-template.json  karaf-camel-log-template.json  karaf-camel-rest-sql-template.json  karaf-cxf-rest-template.json  spring-boot-camel-amq-template.json  spring-boot-camel-config-template.json  spring-boot-camel-drools-template.json  spring-boot-camel-infinispan-template.json  spring-boot-camel-rest-sql-template.json  spring-boot-camel-rest-3scale-template.json  spring-boot-camel-template.json  spring-boot-camel-xa-template.json  spring-boot-camel-xml-template.json  spring-boot-cxf-jaxrs-template.json  spring-boot-cxf-jaxws-template.json ;  do  oc create  -f  ${BASEURL}/quickstarts/${template};  done
+  600  for template in spring-boot-2-camel-amq-template.json  spring-boot-2-camel-config-template.json  spring-boot-2-camel-drools-template.json  spring-boot-2-camel-infinispan-template.json  spring-boot-2-camel-rest-3scale-template.json  spring-boot-2-camel-rest-sql-template.json  spring-boot-2-camel-template.json  spring-boot-2-camel-xa-template.json  spring-boot-2-camel-xml-template.json  spring-boot-2-cxf-jaxrs-template.json  spring-boot-2-cxf-jaxws-template.json  spring-boot-2-cxf-jaxrs-xml-template.json  spring-boot-2-cxf-jaxws-xml-template.json ;  do oc create  -f  https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-sb2-760039-redhat-00001/quickstarts/${template};  done
+
+
+mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
+  -DarchetypeCatalog=https://maven.repository.redhat.com/ga/io/fabric8/archetypes/archetypes-catalog/2.2.0.fuse-sb2-760038-redhat-00001/archetypes-catalog-2.2.0.fuse-sb2-760038-redhat-00001-archetype-catalog.xml \
+  -DarchetypeGroupId=org.jboss.fuse.fis.archetypes \
+  -DarchetypeArtifactId=spring-boot-cxf-jaxws-xml-archetype \
+  -DarchetypeVersion=2.2.0.fuse-sb2-760038-redhat-00001
