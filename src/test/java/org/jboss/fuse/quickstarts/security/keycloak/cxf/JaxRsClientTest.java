@@ -89,7 +89,7 @@ public class JaxRsClientTest {
     static String JAXWS_URI_STS = "http://192.168.0.11:8283/WeatherService";
     static String JAXWS_URI = "http://192.168.0.11:8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
-    static String CAMEL_ROUTE_HOST = "http://camel-bridge-springboot-xml-openshift.192.168.64.12.nip.io";
+    static String CAMEL_ROUTE_HOST = "http://camel-bridge-springboot-xml-openshift.192.168.64.13.nip.io";
     //static String CAMEL_ROUTE_HOST = "http://localhost:8080";
     static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
     CloseableHttpClient httpClient;
@@ -285,7 +285,7 @@ public class JaxRsClientTest {
             // "4.3. Resource Owner Password Credentials Grant"
             // from https://tools.ietf.org/html/rfc6749#section-4.3
             // we use "resource owner" credentials directly to obtain the token
-            HttpPost post = new HttpPost("https://sso-openshift.192.168.64.12.nip.io/auth/realms/fuse7karaf/protocol/openid-connect/token");
+            HttpPost post = new HttpPost("https://sso-openshift.192.168.64.13.nip.io/auth/realms/fuse7karaf/protocol/openid-connect/token");
             //HttpPost post = new HttpPost("https://192.168.0.11:8543/auth/realms/fuse7karaf/protocol/openid-connect/token");
             LinkedList<NameValuePair> params = new LinkedList<>();
             params.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));
