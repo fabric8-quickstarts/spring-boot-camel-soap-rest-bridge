@@ -1,4 +1,4 @@
-
+oc set env dc/camel-bridge-springboot-xml JAVA_OPTIONS='-Dsso.server=https://sso-openshift.192.168.64.13.nip.io'
 for resource in sso74-image-stream.json \
   sso74-https.json \
   sso74-postgresql.json \
