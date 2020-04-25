@@ -134,8 +134,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     
     <bean id="rolesClaimsHandler"
         class="org.example.KeycloakRolesClaimsHandler">
-        <property name="address" value="https://sso-openshift.192.168.64.13.nip.io/auth"/>
-        <!--property name="address" value="https://192.168.0.11:8543/auth"/-->
+        <property name="address" value="${sso.server}/auth"/>
         <property name="realm" value="fuse7karaf"/>
         <property name="adminUser" value="karafadmin"/>
         <property name="adminPassword" value="karafadmin"/>
@@ -149,8 +148,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     </bean>
     
     <bean id="utValidator" class="org.example.KeycloakUTValidator">
-        <property name="address" value="https://sso-openshift.192.168.64.13.nip.io/auth"/>
-        <!--property name="address" value="https://192.168.0.11:8543/auth"/-->
+        <property name="address" value="${sso.server}/auth"/>
         <property name="realm" value="fuse7karaf"/>
     </bean>
     
