@@ -89,7 +89,7 @@ public class JaxRsClientTest {
     static String JAXWS_URI_STS = "http://192.168.0.11:8283/WeatherService";
     static String JAXWS_URI = "http://192.168.0.11:8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
-    static String CAMEL_ROUTE_HOST = "http://camel-bridge-springboot-xml-openshift.192.168.64.13.nip.io";
+    static String CAMEL_ROUTE_HOST = System.getProperty("camel.route.host", "http://camel-bridge-springboot-xml-openshift.192.168.64.13.nip.io");
     //static String CAMEL_ROUTE_HOST = "http://localhost:8080";
     static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
     static String SSO_URL = System.getProperty("sso.server");
