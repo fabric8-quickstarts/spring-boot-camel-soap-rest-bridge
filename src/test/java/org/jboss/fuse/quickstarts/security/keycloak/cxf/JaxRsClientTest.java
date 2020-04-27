@@ -86,8 +86,9 @@ import static org.junit.Assert.fail;
 public class JaxRsClientTest {
 
     public static Logger LOG = LoggerFactory.getLogger(JaxRsClientTest.class);
-    static String JAXWS_URI_STS = "http://192.168.0.11:8283/WeatherService";
-    static String JAXWS_URI = "http://192.168.0.11:8282/WeatherService";
+    static String WEATHER_HOST = System.getProperty("weather.service.host", "192.168.0.11");
+    static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
+    static String JAXWS_URI = "http://" + WEATHER_HOST + ":8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
     static String CAMEL_ROUTE_HOST = System.getProperty("camel.route.host", "http://camel-bridge-springboot-xml-openshift.192.168.64.13.nip.io");
     //static String CAMEL_ROUTE_HOST = "http://localhost:8080";

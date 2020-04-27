@@ -15,14 +15,14 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
     <bean id="getBodyProcessor" class="org.example.GetBodyProcessor" />
 
-    <cxf:cxfEndpoint address="http://192.168.0.11:8282/WeatherService" id="soap">
+    <cxf:cxfEndpoint address="http://${weather.service.host}:8282/WeatherService" id="soap">
         <cxf:outInterceptors>
             <ref bean="wss4jOutInterceptor-saml"/>
             <ref bean="loggingOutInterceptor"/>
         </cxf:outInterceptors>
     </cxf:cxfEndpoint>
     
-    <cxf:cxfEndpoint address="http://192.168.0.11:8283/WeatherService" wsdlURL="/weatherprovider.wsdl" id="sts">
+    <cxf:cxfEndpoint address="http://${weather.service.host}:8283/WeatherService" wsdlURL="/weatherprovider.wsdl" id="sts">
         <cxf:properties>
             <entry key="schema-validation-enabled" value="true"/>
         </cxf:properties>
