@@ -14,3 +14,4 @@ spec:
           - name: SPRING_APPLICATION_JSON
             value: '{"server":{"undertow":{"io-threads":1, "worker-threads":2 }}}'
           - name: JAVA_OPTIONS
+            value: ${JAVA_OPTIONS}
