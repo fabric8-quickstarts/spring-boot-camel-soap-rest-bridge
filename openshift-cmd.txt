@@ -1,3 +1,63 @@
+//install 3scale 2.8 on openshift
+oc create -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/3scale-image-streams.yml
+oc new-app -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp.yml --param WILDCARD_DOMAIN=my.exmaple.com //this take a while to pull all necessary images
+--> Deploying template "openshift/3scale-api-management" for "https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp.yml" to project openshift
+
+     3scale API Management
+     ---------
+     3scale API Management main system
+
+     Login on https://3scale-admin.my.exmaple.com as admin/msitf1ai
+
+     * With parameters:
+        * AMP_RELEASE=2.8
+        * APP_LABEL=3scale-api-management
+        * TENANT_NAME=3scale
+        * RWX_STORAGE_CLASS=null
+        * AMP_BACKEND_IMAGE=registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.8
+        * AMP_ZYNC_IMAGE=registry.redhat.io/3scale-amp2/zync-rhel7:3scale2.8
+        * AMP_APICAST_IMAGE=registry.redhat.io/3scale-amp2/apicast-gateway-rhel8:3scale2.8
+        * AMP_SYSTEM_IMAGE=registry.redhat.io/3scale-amp2/system-rhel7:3scale2.8
+        * ZYNC_DATABASE_IMAGE=registry.redhat.io/rhscl/postgresql-10-rhel7
+        * MEMCACHED_IMAGE=registry.redhat.io/3scale-amp2/memcached-rhel7:3scale2.8
+        * IMAGESTREAM_TAG_IMPORT_INSECURE=false
+        * SYSTEM_DATABASE_IMAGE=registry.redhat.io/rhscl/mysql-57-rhel7:5.7
+        * REDIS_IMAGE=registry.redhat.io/rhscl/redis-32-rhel7:3.2
+        * System MySQL User=mysql
+        * System MySQL Password=0uafn25i # generated
+        * System MySQL Database Name=system
+        * System MySQL Root password.=cl14yost # generated
+        * WILDCARD_DOMAIN=my.exmaple.com
+        * SYSTEM_BACKEND_USERNAME=3scale_api_user
+        * SYSTEM_BACKEND_PASSWORD=bbsueedh # generated
+        * SYSTEM_BACKEND_SHARED_SECRET=u1bu3hfr # generated
+        * SYSTEM_APP_SECRET_KEY_BASE=7231b0d8c5b2e60ba1227bbca066bb18cc50becda6e6acb2285a62a4cdd7442caa08ceeb6bed58cb75546261b0d476cb5b1444a5aad6118e06124be871bda4e0 # generated
+        * ADMIN_PASSWORD=msitf1ai # generated
+        * ADMIN_USERNAME=admin
+        * ADMIN_EMAIL=
+        * ADMIN_ACCESS_TOKEN=shi2r371ki8ph3dw # generated
+        * MASTER_NAME=master
+        * MASTER_USER=master
+        * MASTER_PASSWORD=puwodjrp # generated
+        * MASTER_ACCESS_TOKEN=83w2j4w0 # generated
+        * RECAPTCHA_PUBLIC_KEY=
+        * RECAPTCHA_PRIVATE_KEY=
+        * SYSTEM_REDIS_URL=redis://system-redis:6379/1
+        * SYSTEM_MESSAGE_BUS_REDIS_URL=
+        * SYSTEM_REDIS_NAMESPACE=
+        * SYSTEM_MESSAGE_BUS_REDIS_NAMESPACE=
+        * Zync Database PostgreSQL Connection Password=BqdjRRor77ePLS6i # generated
+        * ZYNC_SECRET_KEY_BASE=QtM7Sxpo7vk5JLRV # generated
+        * ZYNC_AUTHENTICATION_TOKEN=3Pl3R4jcDBa0eR4P # generated
+        * APICAST_ACCESS_TOKEN=lx8hpt67 # generated
+        * APICAST_MANAGEMENT_API=status
+        * APICAST_OPENSSL_VERIFY=false
+        * APICAST_RESPONSE_CODES=true
+        * APICAST_REGISTRY_URL=http://apicast-staging:8090/policies
+
+
+
+oc import-image registry.redhat.io/3scale-amp2/zync-rhel7:latest --confirm(may not need this anymore)
 https://github.com/minishift/minishift/issues/2621
 mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.13.nip.io -Dweather.service.host=192.168.0.11"
 oc set env dc/camel-bridge-springboot-xml JAVA_OPTIONS='-Dsso.server=https://sso-openshift.192.168.64.13.nip.io'(don't need this)
