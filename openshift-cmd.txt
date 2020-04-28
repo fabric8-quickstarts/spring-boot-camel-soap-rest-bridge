@@ -1,8 +1,10 @@
-3scale API Management
-     ---------
-     3scale API Management main system
+--> Deploying template "ffang-test/3scale-api-management-eval" for "https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml" to project ffang-test
 
-     Login on https://3scale-admin.my.exmaple.com as admin/2n3w5r22
+     3scale API Management
+     ---------
+     3scale API Management main system (Evaluation)
+
+     Login on https://3scale-admin.192.168.64.25.nip.io as admin/pj2c744x
 
      * With parameters:
         * AMP_RELEASE=2.8
@@ -19,72 +21,49 @@
         * SYSTEM_DATABASE_IMAGE=registry.redhat.io/rhscl/mysql-57-rhel7:5.7
         * REDIS_IMAGE=registry.redhat.io/rhscl/redis-32-rhel7:3.2
         * System MySQL User=mysql
-        * System MySQL Password=vuuv6sq5 # generated
+        * System MySQL Password=x3b2otoo # generated
         * System MySQL Database Name=system
-        * System MySQL Root password.=651fke60 # generated
-        * WILDCARD_DOMAIN=my.exmaple.com
+        * System MySQL Root password.=jvsdmrq5 # generated
+        * WILDCARD_DOMAIN=192.168.64.25.nip.io
         * SYSTEM_BACKEND_USERNAME=3scale_api_user
-        * SYSTEM_BACKEND_PASSWORD=bhgvo1bu # generated
-        * SYSTEM_BACKEND_SHARED_SECRET=xfdv3vfr # generated
-        * SYSTEM_APP_SECRET_KEY_BASE=2471bddd1c07d5e1586b273c12ba1c65083cc03e200161212801124487bcdd5720e477d2da0d0aaad73a1105a3401edc3213c06c80bd24666a27d2ac855c1614 # generated
-        * ADMIN_PASSWORD=2n3w5r22 # generated
+        * SYSTEM_BACKEND_PASSWORD=v1sbpy2c # generated
+        * SYSTEM_BACKEND_SHARED_SECRET=upitg0qg # generated
+        * SYSTEM_APP_SECRET_KEY_BASE=048bb1c3de8281e265c0b14c3c4305b1ee646144c78ac02c85c3ee3d13c4e7aae05b133e220a55ac672a64c3a2368464500a3577e7ab7c26d76b0cc271d44ad0 # generated
+        * ADMIN_PASSWORD=pj2c744x # generated
         * ADMIN_USERNAME=admin
         * ADMIN_EMAIL=
-        * ADMIN_ACCESS_TOKEN=f84gb44wmge8fumr # generated
+        * ADMIN_ACCESS_TOKEN=dgbkp7l4cynabtri # generated
         * MASTER_NAME=master
         * MASTER_USER=master
-        * MASTER_PASSWORD=alvigq7l # generated
-        * MASTER_ACCESS_TOKEN=j5ya7ex3 # generated
+        * MASTER_PASSWORD=hotn88iq # generated
+        * MASTER_ACCESS_TOKEN=wn57fmsl # generated
         * RECAPTCHA_PUBLIC_KEY=
         * RECAPTCHA_PRIVATE_KEY=
         * SYSTEM_REDIS_URL=redis://system-redis:6379/1
         * SYSTEM_MESSAGE_BUS_REDIS_URL=
         * SYSTEM_REDIS_NAMESPACE=
         * SYSTEM_MESSAGE_BUS_REDIS_NAMESPACE=
-        * Zync Database PostgreSQL Connection Password=vuJw8IJmwNPqO7U6 # generated
-        * ZYNC_SECRET_KEY_BASE=OlJEC2SFUQ71oE7g # generated
-        * ZYNC_AUTHENTICATION_TOKEN=RYOnBq7yYtCkXcKm # generated
-        * APICAST_ACCESS_TOKEN=n02xc422 # generated
+        * Zync Database PostgreSQL Connection Password=CVRynAPIiWVr3Skj # generated
+        * ZYNC_SECRET_KEY_BASE=te4HhVdmEgqJ6gIo # generated
+        * ZYNC_AUTHENTICATION_TOKEN=shpMQ5lLuSaMV2hM # generated
+        * APICAST_ACCESS_TOKEN=ghvkp8kx # generated
         * APICAST_MANAGEMENT_API=status
         * APICAST_OPENSSL_VERIFY=false
         * APICAST_RESPONSE_CODES=true
         * APICAST_REGISTRY_URL=http://apicast-staging:8090/policies
 
-oc create secret generic threescale-registry-auth     --from-file=.dockerconfigjson=/Users/ffang/.docker/config.json     --type=kubernetes.io/dockerconfigjson
-//install 3scale 2.8 on openshift
-oc create -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/3scale-image-streams.yml
-oc new-app -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp.yml --param WILDCARD_DOMAIN=my.exmaple.com //this take a while to pull all necessary images
---> Deploying template "openshift/3scale-api-management" for "https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp.yml" to project openshift
+--> Deploying template "openshift/sso74-x509-postgresql-persistent" to project ffang-test
 
+     Red Hat Single Sign-On 7.4 on OpenJDK + PostgreSQL (Persistent)
+     ---------
+     An example application based on RH-SSO 7.4 on OpenJDK image. For more information about using this template, see https://github.com/jboss-container-images/redhat-sso-7-openshift-image/tree/sso74-dev/docs.
 
+     A new persistent RH-SSO service (using PostgreSQL) has been created in your project. The admin username/password for accessing the master realm via the RH-SSO console is 8jveK64J/qCnnawD3q1PwcaqQ3U84pwbAMaTgLb5O. The username/password for accessing the PostgreSQL database "root" is userK7n/klYAXesIegvaWxRv3wskNkr6Ml4j7qiQ. The HTTPS keystore used for serving secure content, the JGroups keystore used for securing JGroups communications, and server truststore used for securing RH-SSO requests were automatically created via OpenShift's service serving x509 certificate secrets.
 
-
-oc import-image registry.redhat.io/3scale-amp2/zync-rhel7:latest --confirm(may not need this anymore)
-https://github.com/minishift/minishift/issues/2621
-mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.13.nip.io -Dweather.service.host=192.168.0.11"
-oc set env dc/camel-bridge-springboot-xml JAVA_OPTIONS='-Dsso.server=https://sso-openshift.192.168.64.13.nip.io'(don't need this)
-for resource in sso74-image-stream.json \
-  sso74-https.json \
-  sso74-postgresql.json \
-  sso74-postgresql-persistent.json \
-  sso74-x509-https.json \
-  sso74-x509-postgresql-persistent.json
-do
-  oc create -n openshift -f \
-  https://raw.githubusercontent.com/jboss-container-images/redhat-sso-7-openshift-image/sso74-dev/templates/${resource}
-done
-
-oc -n openshift import-image redhat-sso74-openshift:1.0(no this)
-
-oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
-
-oc new-app --template=sso74-x509-postgresql-persistent
-
-
-* With parameters:
+     * With parameters:
         * Application Name=sso
         * Custom RH-SSO Server Hostname=
-        * JGroups Cluster Password=JlF8Ku43pCaCIFyFTbe55wA0jeNTIsXs # generated
+        * JGroups Cluster Password=fOPHo7KOLKx5KgEwHqTohDMCJGVehx6f # generated
         * Database JNDI Name=java:jboss/datasources/KeycloakDS
         * Database Name=root
         * Datasource Minimum Pool Size=
@@ -92,17 +71,60 @@ oc new-app --template=sso74-x509-postgresql-persistent
         * Datasource Transaction Isolation=
         * PostgreSQL Maximum number of connections=
         * PostgreSQL Shared Buffers=
-        * Database Username=user6kY # generated
-        * Database Password=KsugY5jxSj6pnL1cXoOCsIhORbY0iF80 # generated
+        * Database Username=userK7n # generated
+        * Database Password=klYAXesIegvaWxRv3wskNkr6Ml4j7qiQ # generated
         * Database Volume Capacity=1Gi
         * ImageStream Namespace=openshift
-        * RH-SSO Administrator Username=xnDx1dAM # generated
-        * RH-SSO Administrator Password=hBFKPfvb8HvUEhX5KGxLUHPtQJR4eVyg # generated
+        * RH-SSO Administrator Username=8jveK64J # generated
+        * RH-SSO Administrator Password=qCnnawD3q1PwcaqQ3U84pwbAMaTgLb5O # generated
         * RH-SSO Realm=
         * RH-SSO Service Username=
         * RH-SSO Service Password=
         * PostgreSQL Image Stream Tag=10
         * Container Memory Limit=1Gi
+
+
+oc login -u system:admin
+oc adm policy add-cluster-role-to-user cluster-admin developer
+oc login -u developer
+oc new-project ffang-test
+oc create secret docker-registry threescale-registry-auth --docker-server=registry.redhat.io --docker-username="6340056|yfang" --docker-password="eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiI3MGIyNjA3ZmYyNGY0MDRhOWMzZjU4NzU0YTMxZGU5YiJ9.YK5bJZpUNu0Srbl6bhCaaz1PkDswi8vPYfzVWURWIaYAGn_B0bVJkaKqFfg_4J_9HoaJoV__Rs-wkTG5KXJOMAWN_fvX0GL1TEia8TXzqnCgdkkLmcVwF9b_lUriFSvmoov6xUIvi1LtA5Q5Vm9q8r-nryLXfgwwqY5QMXLVOddbdlT7695cV-z-D8K3Rd9j4tCcwcxMrZMmG5pLZTbPK2RlGmPeI1a_aV7Tcy9SAMLVP6wPw-EbB3m78wwv7C0V3e0K4Yho5A0yjmvXRPYW2ER-Zx981FTtNYi75nzxSPsV6EXg5DqKdXrsoogVq3odEchqJyzLJ6eDfJLZOvY7Z6nM9Yoh5CLP-TvdovilzKCnxDXOCa2BzmzD4W5vjXVDxwGyFVdLOpCtkIrgAm3iu8684DVC1sbwA5gL4qgNM6QnaxSoWHVfnkIii3At0o3IAgE0zsY-EWOsQ6hUFnVyQRVQmrjkwoh8f45ADgP6Y3zvPTq5uxaPSCXV4gniRKKFwxz96uvZoK6dEXw3WLMyGncpD1LGbWQ9lET7a-_huTEgOsFCh6ClS9nf0QABd-LP3BBNMK6q5lawL_6Ri9r3q0kE04fk50qQywO8swed5rjI9TwkS_6FU3UguObRNMdUGHcVRVmayhOtuBDxHi3rzEdDX-xaP2jm-PAdUCFH7RA"
+oc secrets link default threescale-registry-auth --for=pull
+oc secrets link builder threescale-registry-auth
+oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml //this takes about 8 mins on my machine and totally there are 15 pods started for this, tech-preview version has no resources limits, so more suitale on  my minishift
+for resource in sso74-image-stream.json \
+  sso74-https.json \
+  sso74-postgresql.json \
+  sso74-postgresql-persistent.json \
+  sso74-x509-https.json \
+  sso74-x509-postgresql-persistent.json
+do
+  oc create \
+  https://raw.githubusercontent.com/jboss-container-images/redhat-sso-7-openshift-image/sso74-dev/templates/${resource}
+done
+
+oc new-app --template=sso74-x509-postgresql-persistent
+
+BASEURL=https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001
+oc create  -f ${BASEURL}/fis-image-streams.json
+oc process --parameters -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001/fis-console-namespace-template.json
+oc create  -f ${BASEURL}/fis-console-namespace-template.json
+oc new-app -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001/fis-console-namespace-template.json
+for template in eap-camel-amq-template.json  eap-camel-cdi-template.json  eap-camel-cxf-jaxrs-template.json  eap-camel-cxf-jaxws-template.json  eap-camel-jpa-template.json  karaf-camel-amq-template.json  karaf-camel-log-template.json  karaf-camel-rest-sql-template.json  karaf-cxf-rest-template.json  spring-boot-camel-amq-template.json  spring-boot-camel-config-template.json  spring-boot-camel-drools-template.json  spring-boot-camel-infinispan-template.json  spring-boot-camel-rest-sql-template.json  spring-boot-camel-rest-3scale-template.json  spring-boot-camel-template.json  spring-boot-camel-xa-template.json  spring-boot-camel-xml-template.json  spring-boot-cxf-jaxrs-template.json  spring-boot-cxf-jaxws-template.json ;  do  oc create  -f  ${BASEURL}/quickstarts/${template};  done
+for template in spring-boot-2-camel-amq-template.json  spring-boot-2-camel-config-template.json  spring-boot-2-camel-drools-template.json  spring-boot-2-camel-infinispan-template.json  spring-boot-2-camel-rest-3scale-template.json  spring-boot-2-camel-rest-sql-template.json  spring-boot-2-camel-template.json  spring-boot-2-camel-xa-template.json  spring-boot-2-camel-xml-template.json  spring-boot-2-cxf-jaxrs-template.json  spring-boot-2-cxf-jaxws-template.json  spring-boot-2-cxf-jaxrs-xml-template.json  spring-boot-2-cxf-jaxws-xml-template.json ;  do oc create  -f  https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-sb2-760039-redhat-00001/quickstarts/${template};  done
+
+6340056|yfang
+eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiI3MGIyNjA3ZmYyNGY0MDRhOWMzZjU4NzU0YTMxZGU5YiJ9.YK5bJZpUNu0Srbl6bhCaaz1PkDswi8vPYfzVWURWIaYAGn_B0bVJkaKqFfg_4J_9HoaJoV__Rs-wkTG5KXJOMAWN_fvX0GL1TEia8TXzqnCgdkkLmcVwF9b_lUriFSvmoov6xUIvi1LtA5Q5Vm9q8r-nryLXfgwwqY5QMXLVOddbdlT7695cV-z-D8K3Rd9j4tCcwcxMrZMmG5pLZTbPK2RlGmPeI1a_aV7Tcy9SAMLVP6wPw-EbB3m78wwv7C0V3e0K4Yho5A0yjmvXRPYW2ER-Zx981FTtNYi75nzxSPsV6EXg5DqKdXrsoogVq3odEchqJyzLJ6eDfJLZOvY7Z6nM9Yoh5CLP-TvdovilzKCnxDXOCa2BzmzD4W5vjXVDxwGyFVdLOpCtkIrgAm3iu8684DVC1sbwA5gL4qgNM6QnaxSoWHVfnkIii3At0o3IAgE0zsY-EWOsQ6hUFnVyQRVQmrjkwoh8f45ADgP6Y3zvPTq5uxaPSCXV4gniRKKFwxz96uvZoK6dEXw3WLMyGncpD1LGbWQ9lET7a-_huTEgOsFCh6ClS9nf0QABd-LP3BBNMK6q5lawL_6Ri9r3q0kE04fk50qQywO8swed5rjI9TwkS_6FU3UguObRNMdUGHcVRVmayhOtuBDxHi3rzEdDX-xaP2jm-PAdUCFH7RA
+
+
+
+
+mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-ffang-test.192.168.64.25.nip.io -Dweather.service.host=192.168.0.11"
+
+oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
+
+
+
 
 
 ./standalone.sh -Dkeycloak.migration.action=export -Dkeycloak.migration.realmName=fuse7karaf -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=bak.json
