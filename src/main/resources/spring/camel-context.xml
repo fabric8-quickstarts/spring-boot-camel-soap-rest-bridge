@@ -135,7 +135,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     <bean id="rolesClaimsHandler"
         class="org.example.KeycloakRolesClaimsHandler">
         <property name="address" value="${sso.server}/auth"/>
-        <property name="realm" value="fuse7karaf"/>
+        <property name="realm" value="camel-soap-rest-bridge"/>
         <property name="adminUser" value="karafadmin"/>
         <property name="adminPassword" value="karafadmin"/>
     </bean>
@@ -149,7 +149,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     
     <bean id="utValidator" class="org.example.KeycloakUTValidator">
         <property name="address" value="${sso.server}/auth"/>
-        <property name="realm" value="fuse7karaf"/>
+        <property name="realm" value="camel-soap-rest-bridge"/>
     </bean>
     
     <jaxws:endpoint xmlns:ns1="http://docs.oasis-open.org/ws-sx/ws-trust/200512/" 

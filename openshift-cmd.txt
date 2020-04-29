@@ -1,10 +1,41 @@
+--> Deploying template "openshift/sso74-x509-postgresql-persistent" to project openshift
+
+     Red Hat Single Sign-On 7.4 on OpenJDK + PostgreSQL (Persistent)
+     ---------
+     An example application based on RH-SSO 7.4 on OpenJDK image. For more information about using this template, see https://github.com/jboss-container-images/redhat-sso-7-openshift-image/tree/sso74-dev/docs.
+
+     A new persistent RH-SSO service (using PostgreSQL) has been created in your project. The admin username/password for accessing the master realm via the RH-SSO console is tprYtXP1/nEjf7fojv11FmhJ5eaqadoh0SI2gvlls. The username/password for accessing the PostgreSQL database "root" is userqxe/XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx. The HTTPS keystore used for serving secure content, the JGroups keystore used for securing JGroups communications, and server truststore used for securing RH-SSO requests were automatically created via OpenShift's service serving x509 certificate secrets.
+
+     * With parameters:
+        * Application Name=sso
+        * Custom RH-SSO Server Hostname=
+        * JGroups Cluster Password=1whGRnsAWu162u0e4P6jNpLn5ysJLWjg # generated
+        * Database JNDI Name=java:jboss/datasources/KeycloakDS
+        * Database Name=root
+        * Datasource Minimum Pool Size=
+        * Datasource Maximum Pool Size=
+        * Datasource Transaction Isolation=
+        * PostgreSQL Maximum number of connections=
+        * PostgreSQL Shared Buffers=
+        * Database Username=userqxe # generated
+        * Database Password=XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx # generated
+        * Database Volume Capacity=1Gi
+        * ImageStream Namespace=openshift
+        * RH-SSO Administrator Username=tprYtXP1 # generated
+        * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
+        * RH-SSO Realm=
+        * RH-SSO Service Username=
+        * RH-SSO Service Password=
+        * PostgreSQL Image Stream Tag=10
+        * Container Memory Limit=1Gi
+
 --> Deploying template "3scale/3scale-api-management-eval" for "https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml" to project 3scale
 
      3scale API Management
      ---------
      3scale API Management main system (Evaluation)
 
-     Login on https://3scale-admin.192.168.64.31.nip.io as admin/gieacddl
+     Login on https://3scale-admin.192.168.64.33.nip.io as admin/b6t784nt
 
      * With parameters:
         * AMP_RELEASE=2.8
@@ -21,68 +52,36 @@
         * SYSTEM_DATABASE_IMAGE=registry.redhat.io/rhscl/mysql-57-rhel7:5.7
         * REDIS_IMAGE=registry.redhat.io/rhscl/redis-32-rhel7:3.2
         * System MySQL User=mysql
-        * System MySQL Password=08vfc4qm # generated
+        * System MySQL Password=mrscfh4h # generated
         * System MySQL Database Name=system
-        * System MySQL Root password.=47kc20f4 # generated
-        * WILDCARD_DOMAIN=192.168.64.31.nip.io
+        * System MySQL Root password.=xbi0ch3i # generated
+        * WILDCARD_DOMAIN=192.168.64.33.nip.io
         * SYSTEM_BACKEND_USERNAME=3scale_api_user
-        * SYSTEM_BACKEND_PASSWORD=dglfqd5j # generated
-        * SYSTEM_BACKEND_SHARED_SECRET=fa36w55l # generated
-        * SYSTEM_APP_SECRET_KEY_BASE=636cb4770ca68376c57707be7a601bbeaabdab65c25257c8a5d3784cd27205a04e54487026c558ee1d48d16b6e15b1a0d18e67635455344463d1deeb6842c8cd # generated
-        * ADMIN_PASSWORD=gieacddl # generated
+        * SYSTEM_BACKEND_PASSWORD=kraji167 # generated
+        * SYSTEM_BACKEND_SHARED_SECRET=8af5m6gb # generated
+        * SYSTEM_APP_SECRET_KEY_BASE=726e63427173e58cbb68a63bdc60c7315565d6acd037caedeeb0050ecc0e6e41c3c7ec4aba01c17d8d8b7b7e3a28d6166d351a6238608bb84aa5d5b2dc02ae60 # generated
+        * ADMIN_PASSWORD=b6t784nt # generated
         * ADMIN_USERNAME=admin
         * ADMIN_EMAIL=
-        * ADMIN_ACCESS_TOKEN=2itase7jnpj7tytw # generated
+        * ADMIN_ACCESS_TOKEN=k055jof4itblvwwn # generated
         * MASTER_NAME=master
         * MASTER_USER=master
-        * MASTER_PASSWORD=kcwws3vk # generated
-        * MASTER_ACCESS_TOKEN=peuqk00l # generated
+        * MASTER_PASSWORD=buikudum # generated
+        * MASTER_ACCESS_TOKEN=xa7wkt16 # generated
         * RECAPTCHA_PUBLIC_KEY=
         * RECAPTCHA_PRIVATE_KEY=
         * SYSTEM_REDIS_URL=redis://system-redis:6379/1
         * SYSTEM_MESSAGE_BUS_REDIS_URL=
         * SYSTEM_REDIS_NAMESPACE=
         * SYSTEM_MESSAGE_BUS_REDIS_NAMESPACE=
-        * Zync Database PostgreSQL Connection Password=OlQQuxJrbCtMWPfe # generated
-        * ZYNC_SECRET_KEY_BASE=TDi7b7J2TNwLaomo # generated
-        * ZYNC_AUTHENTICATION_TOKEN=IhGQbrQj5JdqCOhc # generated
-        * APICAST_ACCESS_TOKEN=j0bb65jm # generated
+        * Zync Database PostgreSQL Connection Password=efyJdRccBbYcWtWl # generated
+        * ZYNC_SECRET_KEY_BASE=dcmNGWtrjCReuJlQ # generated
+        * ZYNC_AUTHENTICATION_TOKEN=3FKMAije3V3RWQQ8 # generated
+        * APICAST_ACCESS_TOKEN=2ql8txu4 # generated
         * APICAST_MANAGEMENT_API=status
         * APICAST_OPENSSL_VERIFY=false
         * APICAST_RESPONSE_CODES=true
         * APICAST_REGISTRY_URL=http://apicast-staging:8090/policies
-
---> Deploying template "openshift/sso74-x509-postgresql-persistent" to project openshift
-
-     Red Hat Single Sign-On 7.4 on OpenJDK + PostgreSQL (Persistent)
-     ---------
-     An example application based on RH-SSO 7.4 on OpenJDK image. For more information about using this template, see https://github.com/jboss-container-images/redhat-sso-7-openshift-image/tree/sso74-dev/docs.
-
-     A new persistent RH-SSO service (using PostgreSQL) has been created in your project. The admin username/password for accessing the master realm via the RH-SSO console is AhMi6M7w/fkGynrI3mWswWNUbuNap3oDaJVDkxuQq. The username/password for accessing the PostgreSQL database "root" is uservhK/iQ0br8yxLuCqe83rdIW6AQ7nuwRXPiPH. The HTTPS keystore used for serving secure content, the JGroups keystore used for securing JGroups communications, and server truststore used for securing RH-SSO requests were automatically created via OpenShift's service serving x509 certificate secrets.
-
-     * With parameters:
-        * Application Name=sso
-        * Custom RH-SSO Server Hostname=
-        * JGroups Cluster Password=ee5NS6m6UNmPcpcQHwQm3ymlFL7co4wP # generated
-        * Database JNDI Name=java:jboss/datasources/KeycloakDS
-        * Database Name=root
-        * Datasource Minimum Pool Size=
-        * Datasource Maximum Pool Size=
-        * Datasource Transaction Isolation=
-        * PostgreSQL Maximum number of connections=
-        * PostgreSQL Shared Buffers=
-        * Database Username=uservhK # generated
-        * Database Password=iQ0br8yxLuCqe83rdIW6AQ7nuwRXPiPH # generated
-        * Database Volume Capacity=1Gi
-        * ImageStream Namespace=openshift
-        * RH-SSO Administrator Username=AhMi6M7w # generated
-        * RH-SSO Administrator Password=fkGynrI3mWswWNUbuNap3oDaJVDkxuQq # generated
-        * RH-SSO Realm=
-        * RH-SSO Service Username=
-        * RH-SSO Service Password=
-        * PostgreSQL Image Stream Tag=10
-        * Container Memory Limit=1Gi
-
 minishift start --memory 8GB --cpus 4
 oc login -u system:admin
 oc adm policy add-cluster-role-to-user cluster-admin developer
@@ -120,7 +119,7 @@ eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiI3MGIyNjA3ZmYyNGY0MDRhOWMzZjU4NzU0YTMxZGU5YiJ9.YK
 
 
 
-mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.31.nip.io -Dweather.service.host=192.168.0.11" -Dfabric8.generator.from=bridge/fuse7-java-openshift:1.6
+mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11" -Dfabric8.generator.from=bridge/fuse7-java-openshift:1.6
 
 oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
 
