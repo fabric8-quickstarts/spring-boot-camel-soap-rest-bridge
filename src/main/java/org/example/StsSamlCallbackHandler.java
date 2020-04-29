@@ -47,7 +47,7 @@ public class StsSamlCallbackHandler implements CallbackHandler {
         String stsEndpoint = "http://localhost:8080/cxf/UT";
         Message message = PhaseInterceptorChain.getCurrentMessage();
         
-        this.userName = "karaf" + message.getContextualProperty("cxf.UserName");
+        this.userName = (String)message.getContextualProperty("cxf.UserName");
        
         try {
             SecurityToken token =

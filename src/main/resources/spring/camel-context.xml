@@ -136,8 +136,8 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
         class="org.example.KeycloakRolesClaimsHandler">
         <property name="address" value="${sso.server}/auth"/>
         <property name="realm" value="camel-soap-rest-bridge"/>
-        <property name="adminUser" value="karafadmin"/>
-        <property name="adminPassword" value="karafadmin"/>
+        <property name="adminUser" value="admin"/>
+        <property name="adminPassword" value="passw0rd"/>
     </bean>
 
     <bean id="transportSTSProperties" class="org.apache.cxf.sts.StaticSTSProperties">

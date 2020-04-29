@@ -296,7 +296,7 @@ public class JaxRsClientTest {
             UrlEncodedFormEntity postData = new UrlEncodedFormEntity(params);
             post.setEntity(postData);
 
-            String basicAuth = BasicAuthHelper.createHeader("cxf", "f1ec716d-2262-434d-8e98-bf31b6b858d6");
+            String basicAuth = BasicAuthHelper.createHeader("camel-bridge", "f1ec716d-2262-434d-8e98-bf31b6b858d6");
             post.setHeader("Authorization", basicAuth);
             CloseableHttpResponse response = client.execute(post);
 
