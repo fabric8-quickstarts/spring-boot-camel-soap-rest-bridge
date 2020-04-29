@@ -120,7 +120,7 @@ eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiI3MGIyNjA3ZmYyNGY0MDRhOWMzZjU4NzU0YTMxZGU5YiJ9.YK
 
 
 
-mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-bridge.192.168.64.25.nip.io -Dweather.service.host=192.168.0.11" -Dfabric8.generator.from=bridge/fuse7-java-openshift:1.6
+mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.31.nip.io -Dweather.service.host=192.168.0.11" -Dfabric8.generator.from=bridge/fuse7-java-openshift:1.6
 
 oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
 
