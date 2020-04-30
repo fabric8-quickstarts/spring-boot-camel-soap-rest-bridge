@@ -13,7 +13,7 @@ The application utilizes the Spring http://docs.spring.io/spring/docs/current/ja
 
 IMPORTANT: This quickstart can run in 2 modes: standalone on your machine and on Kubernetes / OpenShift Cluster.
 
-* When running in standalone mode, a standalone RH SSO instance must be installed, started and configured properly on the local machine.
+* When running in standalone mode, a standalone RH SSO instance must be installed, started and configured properly on the local machine. Since there is no standalone 3Scale avaiable, the standalone mode doesn't involve 3Scale.
 * When running in Openshift Cluster, the RH SSO and 3Scale images must be installed, started and configured properly on the openshift.
 
 == Deployment options
@@ -29,8 +29,8 @@ For more details about running this quickstart on a single-node OpenShift cluste
 
 == Running the Quickstart on a single-node Kubernetes/OpenShift cluster
 
-IMPORTANT: You need to run this example on Container Development Kit 3.3 or OpenShift 3.7.
-Both of these products have suitable Fuse images pre-installed.
+IMPORTANT: You need to run this example on OpenShift 3.11, RH SSO 7.4 and 3Scale 2.8.
+
 If you run it in an environment where those images are not preinstalled follow the steps described in <<single-node-without-preinstalled-images>>.
 
 A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
