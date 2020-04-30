@@ -28,6 +28,10 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import java.security.cert.CertificateException;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -44,22 +48,24 @@ import com.ibm.wdata.WeatherPortType;
 import com.ibm.wdata.WeatherRequest;
 import com.ibm.wdata.WeatherResponse;
 
-
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.LoggingOutInterceptor;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.io.CachedOutputStream;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.jaxrs.client.spec.ClientImpl.WebTargetImpl;
 import org.apache.cxf.jaxrs.impl.ResponseImpl;
 import org.apache.cxf.jaxws.EndpointImpl;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -67,7 +73,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
-import org.apache.http.util.EntityUtils;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -79,7 +84,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -90,11 +94,13 @@ public class JaxRsClientTest {
     static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
     static String JAXWS_URI = "http://" + WEATHER_HOST + ":8282/WeatherService";
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
-    static String CAMEL_ROUTE_HOST = System.getProperty("camel.route.host", "http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io");
-    //static String CAMEL_ROUTE_HOST = "http://localhost:8080";
+    static String CAMEL_ROUTE_HOST = System
+        .getProperty("camel.route.host", "http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io");
+    // static String CAMEL_ROUTE_HOST = "http://localhost:8080";
     static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
     static String SSO_URL = System.getProperty("sso.server");
     CloseableHttpClient httpClient;
+    SSLContext sslContext;
 
     @BeforeClass
     public static void beforeClass() {
@@ -156,15 +162,14 @@ public class JaxRsClientTest {
         }
     }
 
-    
-
     @Test
 
     public void testRestClient() throws Exception {
-
+        
         String accessToken = fetchAccessToken();
 
-        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
+        Client client = ClientBuilder.
+            newClient().register(JacksonJsonProvider.class)
             .register(LoggingFeature.class);
 
         WeatherRequest request = new WeatherRequest();
@@ -172,8 +177,10 @@ public class JaxRsClientTest {
 
         // POST @WeatherPortType#weatherRequest(WeatherRequest)
         String payload = new ObjectMapper().writeValueAsString(request);
-
-        WeatherResponse response = client.target(JAXRS_URL + "/request").request()
+        
+        WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
+        trustOpenshiftSelfSignedCert(target);
+        WeatherResponse response = target.request()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .header("user_key", "9f37d93b27f7b552f30116919cc59048")
             .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
@@ -182,7 +189,38 @@ public class JaxRsClientTest {
         Assert.assertEquals("CA", response.getState());
         Assert.assertEquals("95%", response.getHumidity());
         Assert.assertEquals("28", response.getTemperature());
+       
+    }
 
+    private void trustOpenshiftSelfSignedCert(WebTargetImpl target) {
+        target.request();
+        HTTPConduit conduit = (HTTPConduit)WebClient.getConfig(target.getWebClient()).getConduit();
+        TLSClientParameters params = conduit.getTlsClientParameters();
+
+        if (params == null) {
+            params = new TLSClientParameters();
+            conduit.setTlsClientParameters(params);
+        }
+        
+
+        params.setTrustManagers(new TrustManager[] { new X509TrustManager() {
+            
+            public void checkClientTrusted(X509Certificate[] chain,
+                    String authType) throws java.security.cert.CertificateException {
+            }
+
+            
+            public void checkServerTrusted(X509Certificate[] chain,
+                    String authType) throws java.security.cert.CertificateException {
+            }
+
+            
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        }});
+        
+        params.setDisableCNCheck(true);
     }
 
     @Test
@@ -200,7 +238,9 @@ public class JaxRsClientTest {
         // POST @WeatherPortType#weatherRequest(WeatherRequest)
         String payload = new ObjectMapper().writeValueAsString(request);
         try {
-            client.target(JAXRS_URL + "/request").request().accept(MediaType.APPLICATION_XML)
+            WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
+            this.trustOpenshiftSelfSignedCert(target);
+            target.request().accept(MediaType.APPLICATION_XML)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .header("user_key", "9f37d93b27f7b552f30116919cc59048")
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
@@ -225,9 +265,9 @@ public class JaxRsClientTest {
 
         // POST @WeatherPortType#weatherRequest(WeatherRequest)
         String payload = new ObjectMapper().writeValueAsString(request);
-
-        WeatherResponse response = client.target(JAXRS_URL + "/request").request()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+        WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
+        trustOpenshiftSelfSignedCert(target);
+        WeatherResponse response = target.request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
             .header("user_key", "9f37d93b27f7b552f30116919cc59048")
             .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
         Assert.assertEquals("M3H 2H8", response.getZip());
@@ -254,7 +294,10 @@ public class JaxRsClientTest {
         String payload = new ObjectMapper().writeValueAsString(request);
 
         try {
-            client.target(JAXRS_URL + "/request").request()
+            WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
+            trustOpenshiftSelfSignedCert(target);
+            
+            target.request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .header("user_key", "9f37d93b27f7b552f30116919cc59048")
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
@@ -291,8 +334,10 @@ public class JaxRsClientTest {
             // "4.3. Resource Owner Password Credentials Grant"
             // from https://tools.ietf.org/html/rfc6749#section-4.3
             // we use "resource owner" credentials directly to obtain the token
-            HttpPost post = new HttpPost(SSO_URL + "/auth/realms/camel-soap-rest-bridge/protocol/openid-connect/token");
-            //HttpPost post = new HttpPost("https://192.168.0.11:8543/auth/realms/fuse7karaf/protocol/openid-connect/token");
+            HttpPost post = new HttpPost(SSO_URL
+                                         + "/auth/realms/camel-soap-rest-bridge/protocol/openid-connect/token");
+            // HttpPost post = new
+            // HttpPost("https://192.168.0.11:8543/auth/realms/fuse7karaf/protocol/openid-connect/token");
             LinkedList<NameValuePair> params = new LinkedList<>();
             params.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));
             params.add(new BasicNameValuePair("username", "admin"));
@@ -300,7 +345,8 @@ public class JaxRsClientTest {
             UrlEncodedFormEntity postData = new UrlEncodedFormEntity(params);
             post.setEntity(postData);
 
-            String basicAuth = BasicAuthHelper.createHeader("camel-bridge", "f1ec716d-2262-434d-8e98-bf31b6b858d6");
+            String basicAuth = BasicAuthHelper.createHeader("camel-bridge",
+                                                            "f1ec716d-2262-434d-8e98-bf31b6b858d6");
             post.setHeader("Authorization", basicAuth);
             CloseableHttpResponse response = client.execute(post);
 
@@ -318,40 +364,20 @@ public class JaxRsClientTest {
         return accessToken;
     }
 
-    @Test
-    public void helloEmbeddedAuthenticated() throws Exception {
-
-        String accessToken = fetchAccessToken();
-
-        if (accessToken != null) {
-            try (CloseableHttpClient client = HttpClients.createMinimal()) {
-                // "The OAuth 2.0 Authorization Framework: Bearer Token Usage"
-                // https://tools.ietf.org/html/rfc6750
-                HttpGet get = new HttpGet(CAMEL_ROUTE_HOST + "/cxf/jaxrs/service/hello/hi");
-                get.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-                CloseableHttpResponse response = client.execute(get);
-
-                LOG.info("response: {}", EntityUtils.toString(response.getEntity()));
-                response.close();
-            }
-        }
-    }
     
-    private CloseableHttpClient getCloseableHttpClient()
-    {
+
+    private CloseableHttpClient getCloseableHttpClient() {
         if (httpClient != null) {
             return httpClient;
         }
         try {
-            httpClient = HttpClients.custom().
-                    setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).
-                    setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy()
-                    {
-                        public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException
-                        {
-                            return true;
-                        }
-                    }).build()).build();
+            httpClient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+                    public boolean isTrusted(X509Certificate[] arg0, String arg1)
+                        throws CertificateException {
+                        return true;
+                    }
+                }).build()).build();
         } catch (KeyManagementException e) {
             LOG.error("KeyManagementException in creating http client instance", e);
         } catch (NoSuchAlgorithmException e) {
