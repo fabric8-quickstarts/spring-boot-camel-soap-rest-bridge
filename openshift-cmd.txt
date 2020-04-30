@@ -1,3 +1,6 @@
+use 3scale as http gateway
+mvn clean  test -Dtest=JaxRsClientTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=http://api-3scale-apicast-staging.192.168.64.33.nip.io 
+backend url is http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io:80 and must have POST mapping rule
 ac07c312-042b-48df-9841-d4b9a5470b20
 run locally
 mvn clean spring-boot:run -Dsso.server=https://192.168.0.11:8543 -Dweather.service.host=192.168.0.11
