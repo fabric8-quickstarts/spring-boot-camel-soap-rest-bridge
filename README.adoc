@@ -1,9 +1,10 @@
 = Spring Boot Camel SOAP to REST bridge QuickStart
 
 This example demonstrates how to use Camel's REST DSL to expose a backend SOAP API.
-The mainly purpose of this quickstart is
- 1. a simple camel route can brige REST invocation to legacy SOAP service.
- 2. Security is involved for both REST endpoint and SOAP enpoint, both backed by RH SSO. Frontend REST API protected via OAuth and OpenID Connect, and the client will fetch JWT access token from RH SSO using "Resource Owner Password Credentials" OAuth2 mode and using this token to access the REST endpoint. In the bridge camel route, client identity is propaged from SecurityContext and when camel-cxf producer talk to the backend WS-SECURITY protected SOAP service, it will firstly using this client identity to fetch a SAML2 token issued by CXF STS service(which is backed by RH SSO as Identity Provider), and the SAML2 token is signed and put in WS-SECURITY header, and the backend WS-SECURITY protected SOAP service will validate this SAML2 token accordingly. The SOAP invocation also includes XSD Schema Validation. If the token validation is successful, the backend SOAP service will return response and the response will return to the REST client which initially sends out the request.
+
+===The mainly purpose of this quickstart is
+* `a simple camel route can brige REST invocation to legacy SOAP service.
+* `Security is involved for both REST endpoint and SOAP enpoint, both backed by RH SSO. Frontend REST API protected via OAuth and OpenID Connect, and the client will fetch JWT access token from RH SSO using "Resource Owner Password Credentials" OAuth2 mode and using this token to access the REST endpoint. In the bridge camel route, client identity is propaged from SecurityContext and when camel-cxf producer talk to the backend WS-SECURITY protected SOAP service, it will firstly using this client identity to fetch a SAML2 token issued by CXF STS service(which is backed by RH SSO as Identity Provider), and the SAML2 token is signed and put in WS-SECURITY header, and the backend WS-SECURITY protected SOAP service will validate this SAML2 token accordingly. The SOAP invocation also includes XSD Schema Validation. If the token validation is successful, the backend SOAP service will return response and the response will return to the REST client which initially sends out the request.
 This example relies on the https://maven.fabric8.io[Fabric8 Maven plugin] for its build configuration
 and uses the https://github.com/fabric8io/base-images#java-base-images[fabric8 Java base image].
 
