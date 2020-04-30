@@ -175,6 +175,7 @@ public class JaxRsClientTest {
 
         WeatherResponse response = client.target(JAXRS_URL + "/request").request()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header("user_key", "9f37d93b27f7b552f30116919cc59048")
             .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
         Assert.assertEquals("M3H 2J8", response.getZip());
         Assert.assertEquals("LA", response.getCity());
@@ -201,6 +202,7 @@ public class JaxRsClientTest {
         try {
             client.target(JAXRS_URL + "/request").request().accept(MediaType.APPLICATION_XML)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header("user_key", "9f37d93b27f7b552f30116919cc59048")
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
             fail("we have enabled clientRequestValidation for camel rest dsl, but the request accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException");
         } catch (javax.ws.rs.NotAcceptableException ex) {
@@ -226,6 +228,7 @@ public class JaxRsClientTest {
 
         WeatherResponse response = client.target(JAXRS_URL + "/request").request()
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+            .header("user_key", "9f37d93b27f7b552f30116919cc59048")
             .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
         Assert.assertEquals("M3H 2H8", response.getZip());
         Assert.assertEquals("LA", response.getCity());
@@ -253,6 +256,7 @@ public class JaxRsClientTest {
         try {
             client.target(JAXRS_URL + "/request").request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header("user_key", "9f37d93b27f7b552f30116919cc59048")
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
             fail("should throw schema validation exception since \"M3H 278\" isn't a valid zip code");
         } catch (javax.ws.rs.WebApplicationException ex) {
