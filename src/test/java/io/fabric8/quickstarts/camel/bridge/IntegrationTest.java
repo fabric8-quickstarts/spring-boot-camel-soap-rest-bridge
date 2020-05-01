@@ -188,6 +188,31 @@ public class IntegrationTest {
         Assert.assertEquals("28", response.getTemperature());
 
     }
+    
+    @Test
+
+    public void testRestClientWithNoToken() throws Exception {
+
+        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
+            .register(LoggingFeature.class);
+
+        WeatherRequest request = new WeatherRequest();
+        request.setZipcode("M3H 2H8");
+
+        // POST @WeatherPortType#weatherRequest(WeatherRequest)
+        String payload = new ObjectMapper().writeValueAsString(request);
+        WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
+        trustOpenshiftSelfSignedCert(target);
+        try {
+            target.request()
+                .header("user_key", "9f37d93b27f7b552f30116919cc59048")
+                .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
+            fail("Should receive HTTP 302 Found since no access token so can't pass RH SSO authentication");
+        } catch (javax.ws.rs.RedirectionException ex) {
+            assertTrue(ex.getMessage().contains("HTTP 302 Found"));
+        }
+        
+    }
 
     @Test
 
