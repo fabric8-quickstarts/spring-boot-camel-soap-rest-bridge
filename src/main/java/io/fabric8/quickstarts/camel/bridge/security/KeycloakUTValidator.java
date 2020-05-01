@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.example;
+package io.fabric8.quickstarts.camel.bridge.security;
 
 import javax.ws.rs.ForbiddenException;
 

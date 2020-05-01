@@ -1,10 +1,11 @@
 use 3scale as http gateway
-mvn clean  test -Dtest=JaxRsClientTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 
+mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11"
+mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 
 backend url is http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io:80 and must have POST mapping rule
 ac07c312-042b-48df-9841-d4b9a5470b20
 run locally
 mvn clean spring-boot:run -Dsso.server=https://192.168.0.11:8543 -Dweather.service.host=192.168.0.11
-mvn clean test -Dtest=JaxRsClientTest -Dsso.server=https://192.168.0.11:8543 -Dcamel.route.host=http://192.168.0.11:8080
+mvn clean test -Dtest=IntegrationTest -Dsso.server=https://192.168.0.11:8543 -Dcamel.route.host=http://192.168.0.11:8080
 --> Deploying template "openshift/sso74-x509-postgresql-persistent" to project openshift
 
      Red Hat Single Sign-On 7.4 on OpenJDK + PostgreSQL (Persistent)

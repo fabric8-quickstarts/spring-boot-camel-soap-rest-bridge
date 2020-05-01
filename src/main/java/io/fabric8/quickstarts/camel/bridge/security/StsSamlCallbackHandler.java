@@ -1,4 +1,4 @@
-package org.example;
+package io.fabric8.quickstarts.camel.bridge.security;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -80,7 +80,7 @@ public class StsSamlCallbackHandler implements CallbackHandler {
 
         Map<String, Object> properties = new HashMap<String, Object>();
         properties.put(SecurityConstants.USERNAME, this.userName);
-        properties.put(SecurityConstants.CALLBACK_HANDLER, new org.example.UTPasswordCallback());
+        properties.put(SecurityConstants.CALLBACK_HANDLER, new io.fabric8.quickstarts.camel.bridge.security.UTPasswordCallback());
         
 
         stsClient.setProperties(properties);

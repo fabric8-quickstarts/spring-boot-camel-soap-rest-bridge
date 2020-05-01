@@ -1,4 +1,4 @@
-package org.example;
+package io.fabric8.quickstarts.camel.bridge.security;
 
 import java.io.IOException;
 import java.util.HashMap;

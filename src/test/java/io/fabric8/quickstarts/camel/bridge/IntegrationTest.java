@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.jboss.fuse.quickstarts.security.keycloak.cxf;
+package io.fabric8.quickstarts.camel.bridge;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,9 +87,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class JaxRsClientTest {
+public class IntegrationTest {
 
-    public static Logger LOG = LoggerFactory.getLogger(JaxRsClientTest.class);
+    public static Logger LOG = LoggerFactory.getLogger(IntegrationTest.class);
     static String WEATHER_HOST = System.getProperty("weather.service.host", "192.168.0.11");
     static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
    
@@ -113,7 +113,7 @@ public class JaxRsClientTest {
         Map<String, Object> inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned");
         inProps.put("signatureVerificationPropFile", "bob.properties");
-        impl.getProperties().put("ws-security.saml2.validator", "org.example.Saml2Validator");
+        impl.getProperties().put("ws-security.saml2.validator", "io.fabric8.quickstarts.camel.bridge.security.Saml2Validator");
 
         impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
         impl.getInInterceptors().add(new LoggingInInterceptor());
@@ -131,62 +131,9 @@ public class JaxRsClientTest {
         SLF4JBridgeHandler.uninstall();
     }
 
-    @Test
-    public void testJavaClient() throws Exception {
-
-        Service service = Service.create(new URL(JAXWS_URI_STS + "?wsdl"), SERVICE_QNAME);
-        WeatherPortType port = service.getPort(WeatherPortType.class);
-        Assert.assertNotNull("Address not null", port);
-        try {
-
-            WeatherRequest request = new WeatherRequest();
-            request.setZipcode("M3H 2J8");
-            WeatherResponse response = port.weatherRequest(request);
-            fail("should fail caz no security");
-            Assert.assertEquals("M3H 2J8", response.getZip());
-            Assert.assertEquals("LA", response.getCity());
-            Assert.assertEquals("CA", response.getState());
-            Assert.assertEquals("95%", response.getHumidity());
-            Assert.assertEquals("28", response.getTemperature());
-        } catch (Exception ex) {
-            Assert.assertEquals("A security error was encountered when verifying the message",
-                                ex.getMessage());
-        }
-    }
-
     
 
-    private void trustOpenshiftSelfSignedCert(WebTargetImpl target) {
-        target.request();
-        HTTPConduit conduit = (HTTPConduit)WebClient.getConfig(target.getWebClient()).getConduit();
-        TLSClientParameters params = conduit.getTlsClientParameters();
-
-        if (params == null) {
-            params = new TLSClientParameters();
-            conduit.setTlsClientParameters(params);
-        }
-        
-
-        params.setTrustManagers(new TrustManager[] { new X509TrustManager() {
-            
-            public void checkClientTrusted(X509Certificate[] chain,
-                    String authType) throws java.security.cert.CertificateException {
-            }
-
-            
-            public void checkServerTrusted(X509Certificate[] chain,
-                    String authType) throws java.security.cert.CertificateException {
-            }
-
-            
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-        }});
-        
-        params.setDisableCNCheck(true);
-    }
-
+    
     @Test
 
     public void testRestClientWithInvalidPayload() throws Exception {
@@ -289,6 +236,31 @@ public class JaxRsClientTest {
         }
 
     }
+    
+    @Test
+    public void testJavaClient() throws Exception {
+
+        Service service = Service.create(new URL(JAXWS_URI_STS + "?wsdl"), SERVICE_QNAME);
+        WeatherPortType port = service.getPort(WeatherPortType.class);
+        Assert.assertNotNull("Address not null", port);
+        try {
+
+            WeatherRequest request = new WeatherRequest();
+            request.setZipcode("M3H 2J8");
+            WeatherResponse response = port.weatherRequest(request);
+            fail("should fail caz no security");
+            Assert.assertEquals("M3H 2J8", response.getZip());
+            Assert.assertEquals("LA", response.getCity());
+            Assert.assertEquals("CA", response.getState());
+            Assert.assertEquals("95%", response.getHumidity());
+            Assert.assertEquals("28", response.getTemperature());
+        } catch (Exception ex) {
+            Assert.assertEquals("A security error was encountered when verifying the message",
+                                ex.getMessage());
+        }
+    }
+
+    
 
     private String fetchAccessToken()
         throws UnsupportedEncodingException, IOException, ClientProtocolException {
@@ -350,6 +322,37 @@ public class JaxRsClientTest {
             LOG.error("KeyStoreException in creating http client instance", e);
         }
         return httpClient;
+    }
+
+    private void trustOpenshiftSelfSignedCert(WebTargetImpl target) {
+        target.request();
+        HTTPConduit conduit = (HTTPConduit)WebClient.getConfig(target.getWebClient()).getConduit();
+        TLSClientParameters params = conduit.getTlsClientParameters();
+
+        if (params == null) {
+            params = new TLSClientParameters();
+            conduit.setTlsClientParameters(params);
+        }
+        
+
+        params.setTrustManagers(new TrustManager[] { new X509TrustManager() {
+            
+            public void checkClientTrusted(X509Certificate[] chain,
+                    String authType) throws java.security.cert.CertificateException {
+            }
+
+            
+            public void checkServerTrusted(X509Certificate[] chain,
+                    String authType) throws java.security.cert.CertificateException {
+            }
+
+            
+            public X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        }});
+        
+        params.setDisableCNCheck(true);
     }
 
     

@@ -7,7 +7,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
 
 
     <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
-    <bean id="getBodyProcessor" class="org.example.GetBodyProcessor" />
+    <bean id="getBodyProcessor" class="io.fabric8.quickstarts.camel.bridge.processor.GetBodyProcessor" />
 
     
     <cxf:cxfEndpoint address="http://${weather.service.host}:8283/WeatherService" wsdlURL="/weatherprovider.wsdl" id="sts">
@@ -59,14 +59,14 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
                 <entry key="action" value="Timestamp SAMLTokenUnsigned"/>
                 <entry key="user" value="alice"/>
                 <entry key="signaturePropFile" value="alice.properties"/>
-                <entry key="passwordCallbackClass" value="org.example.KeystorePasswordCallback"/>
+                <entry key="passwordCallbackClass" value="io.fabric8.quickstarts.camel.bridge.security.KeystorePasswordCallback"/>
                 <entry key="samlCallbackRef" value-ref="stsSamlCallbackHandler"/>
             </map>
         </constructor-arg>
     </bean>
     <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
 
-    <bean id="stsSamlCallbackHandler" class="org.example.StsSamlCallbackHandler"/>
+    <bean id="stsSamlCallbackHandler" class="io.fabric8.quickstarts.camel.bridge.security.StsSamlCallbackHandler"/>
     
     <bean id="transportSTSProviderBean" class="org.apache.cxf.ws.security.sts.provider.SecurityTokenServiceProvider">
         <property name="issueOperation" ref="transportIssueDelegate"/>
@@ -86,7 +86,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     </bean>
     
     <bean id="rolesClaimsHandler"
-        class="org.example.KeycloakRolesClaimsHandler">
+        class="io.fabric8.quickstarts.camel.bridge.security.KeycloakRolesClaimsHandler">
         <property name="address" value="${sso.server}/auth"/>
         <property name="realm" value="camel-soap-rest-bridge"/>
         <property name="adminUser" value="admin"/>
@@ -96,11 +96,11 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     <bean id="transportSTSProperties" class="org.apache.cxf.sts.StaticSTSProperties">
         <property name="signaturePropertiesFile" value="alice.properties"/>
         <property name="signatureUsername" value="alice"/>
-        <property name="callbackHandlerClass" value="org.example.KeystorePasswordCallback"/>
+        <property name="callbackHandlerClass" value="io.fabric8.quickstarts.camel.bridge.security.KeystorePasswordCallback"/>
         <property name="issuer" value="keycloak"/>
     </bean>
     
-    <bean id="utValidator" class="org.example.KeycloakUTValidator">
+    <bean id="utValidator" class="io.fabric8.quickstarts.camel.bridge.security.KeycloakUTValidator">
         <property name="address" value="${sso.server}/auth"/>
         <property name="realm" value="camel-soap-rest-bridge"/>
     </bean>

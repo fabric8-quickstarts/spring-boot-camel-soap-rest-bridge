@@ -13,7 +13,7 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package org.jboss.fuse.quickstarts.security.keycloak.cxf;
+package io.fabric8.quickstarts.camel.bridge.backend.soap;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;

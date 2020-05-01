@@ -1,4 +1,4 @@
-package org.example;
+package io.fabric8.quickstarts.camel.bridge;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
