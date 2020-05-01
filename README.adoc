@@ -31,11 +31,42 @@ For more details about running this quickstart on a single-node OpenShift cluste
 
 IMPORTANT: You need to run this example on OpenShift 3.11, RH SSO 7.4 and 3Scale 2.8.
 
-If you run it in an environment where those images are not preinstalled follow the steps described in <<single-node-without-preinstalled-images>>.
-
 A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
 
 If you have a single-node Kubernetes/OpenShift cluster, such as Minishift or the Red Hat Container Development Kit, link:http://appdev.openshift.io/docs/minishift-installation.html[installed and running], you can deploy your quickstart there.
+
+In this quickstart, we will give detailed steps to run it on a local installed minishift.
+
+. Start minishift 
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ minishift start --memory 8GB --cpus 4
+----
+Since we need to install RH SSO image(2 pods) and 3Scale image(15 pods) as pre-requirement, so we need start minishift on a powerful machine, with options "--memory 8GB --cpus 4"
+
+. Set timezone on openshift cluster
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ minishift timezone --set America/Toronto
+----
+Since in this quickstart, we need to issue security token, so the timezone matters because security token has expiration time. Ensure the openshift cluster uses the same time zone as your local machine(By default it will use UTC timezone)
+
+. Add cluster-admin role to user developer
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ oc login -u system:admin
+$ oc adm policy add-cluster-role-to-user cluster-admin developer
+$ oc login -u developer
+$ oc project openshift
+----
+We will install this quickstart in openshift project|namespace, as well as the RH SSO image, so we need to addcluster-admin role to user developer.
+
+
+
+
 
 . Log in to your OpenShift cluster:
 +
