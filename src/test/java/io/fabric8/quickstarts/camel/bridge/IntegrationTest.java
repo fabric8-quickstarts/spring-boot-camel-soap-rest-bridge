@@ -191,8 +191,9 @@ public class IntegrationTest {
     
     @Test
 
-    public void testRestClientWithNoToken() throws Exception {
+    public void testRestClientWithIncorrectToken() throws Exception {
 
+        String accessToken = fetchAccessToken();
         Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class)
             .register(LoggingFeature.class);
 
@@ -205,11 +206,12 @@ public class IntegrationTest {
         trustOpenshiftSelfSignedCert(target);
         try {
             target.request()
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken + 123)
                 .header("user_key", "9f37d93b27f7b552f30116919cc59048")
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-            fail("Should receive HTTP 302 Found since no access token so can't pass RH SSO authentication");
-        } catch (javax.ws.rs.RedirectionException ex) {
-            assertTrue(ex.getMessage().contains("HTTP 302 Found"));
+            fail("Should receive HTTP 401 Unauthorized with incorrect access token so can't pass RH SSO authentication");
+        } catch (javax.ws.rs.NotAuthorizedException ex) {
+            assertTrue(ex.getMessage().contains("HTTP 401 Unauthorized"));
         }
         
     }
