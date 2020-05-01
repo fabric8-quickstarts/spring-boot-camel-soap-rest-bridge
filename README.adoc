@@ -62,7 +62,20 @@ $ oc adm policy add-cluster-role-to-user cluster-admin developer
 $ oc login -u developer
 $ oc project openshift
 ----
-We will install this quickstart in openshift project|namespace, as well as the RH SSO image, so we need to addcluster-admin role to user developer.
+We will install this quickstart in openshift project|namespace, as well as the RH SSO image, so we need to add cluster-admin role to user developer.
+
+. Create secret and link it to serviceaccounts
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ oc create secret docker-registry camel-bridge --docker-server=registry.redhat.io \
+  --docker-username=USERNAME \
+  --docker-password=PASSWORD \
+  --docker-email=EMAIL_ADDRESS
+$ oc secrets link default camel-bridge --for=pull
+$ oc secrets link builder camel-bridge
+----
+Since Openshift 3.11, the new default docker image server registry.redhat.io requires authentication
 
 
 
