@@ -2,23 +2,19 @@
 
 This example demonstrates how to use Camel's REST DSL to expose a backend SOAP API.
 
+===  Mainly purpose of this quickstart
+1. A simple camel route can brige REST invocation to legacy SOAP service.
+2. Security is involved for both REST endpoint and SOAP enpoint, both backed by RH SSO. Frontend REST API protected via OAuth and OpenID Connect, and the client will fetch JWT access token from RH SSO using https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 mode and using this token to access the REST endpoint. In the bridge camel route, client identity is propaged from SecurityContext and when camel-cxf producer talk to the backend WS-SECURITY protected SOAP service, it will firstly using this client identity to fetch a SAML2 token issued by CXF STS service(which is backed by RH SSO as Identity Provider), and the SAML2 token is signed and put in WS-SECURITY header, and the backend WS-SECURITY protected SOAP service will validate this SAML2 token accordingly. The SOAP invocation also includes XSD Schema Validation. If the token validation is successful, the backend SOAP service will return response and the response will return to the REST client which initially sends out the request.
+
 This example relies on the https://maven.fabric8.io[Fabric8 Maven plugin] for its build configuration
 and uses the https://github.com/fabric8io/base-images#java-base-images[fabric8 Java base image].
 
-The Fabric8 Maven Plugin discovers service metadata from Camel XML Context's service definition and exposes the following:
-
-=== Service Label
-* `discovery.3scale.net/discoverable`: Allows 3scale to select Services that are to be automatically exposed.
-
-=== Service Annotations
-* `discovery.3scale.net/discovery-version`: the version of the 3scale discovery process.
-* `discovery.3scale.net/scheme`: this can be http or https
-* `discovery.3scale.net/path`: (optional) the contextPath of the service if it's not at the root.
-* `discovery.3scale.net/description-path`: (optional) the path to the service description document (OpenAPI/Swagger). The path is either relative or an external full URL.
-
 The application utilizes the Spring http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/context/annotation/ImportResource.html[`@ImportResource`] annotation to load a Camel Context definition via a _src/main/resources/spring/camel-context.xml_ file on the classpath.
 
-IMPORTANT: This quickstart can run in 2 modes: standalone on your machine and on Kubernetes / OpenShift Cluster
+IMPORTANT: This quickstart can run in 2 modes: standalone on your machine and on Kubernetes / OpenShift Cluster.
+
+* When running in standalone mode, a standalone RH SSO instance must be installed, started and configured properly on the local machine. Since there is no standalone 3Scale avaiable, the standalone mode doesn't involve 3Scale.
+* When running in Openshift Cluster, the RH SSO and 3Scale images must be installed, started and configured properly on the openshift.
 
 == Deployment options
 
@@ -33,8 +29,8 @@ For more details about running this quickstart on a single-node OpenShift cluste
 
 == Running the Quickstart on a single-node Kubernetes/OpenShift cluster
 
-IMPORTANT: You need to run this example on Container Development Kit 3.3 or OpenShift 3.7.
-Both of these products have suitable Fuse images pre-installed.
+IMPORTANT: You need to run this example on OpenShift 3.11, RH SSO 7.4 and 3Scale 2.8.
+
 If you run it in an environment where those images are not preinstalled follow the steps described in <<single-node-without-preinstalled-images>>.
 
 A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
