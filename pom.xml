@@ -219,11 +219,11 @@
                         <configuration>
                             <wsdlOptions>
                                 <wsdlOption>
-                                    <wsdl>src/main/resources/weatherprovider.wsdl</wsdl>
+                                    <wsdl>src/main/resources/wsdl/weatherprovider.wsdl</wsdl>
                                     <faultSerialVersionUID>1</faultSerialVersionUID>
                                 </wsdlOption>
                                 <wsdlOption>
-                                    <wsdl>src/main/resources/ws-trust-1.4-service.wsdl</wsdl>
+                                    <wsdl>src/main/resources/wsdl/ws-trust-1.4-service.wsdl</wsdl>
                                     <faultSerialVersionUID>1</faultSerialVersionUID>
                                 </wsdlOption>
                             </wsdlOptions>

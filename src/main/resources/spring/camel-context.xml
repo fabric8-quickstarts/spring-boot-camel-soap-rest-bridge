@@ -10,7 +10,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     <bean id="getBodyProcessor" class="io.fabric8.quickstarts.camel.bridge.processor.GetBodyProcessor" />
 
     
-    <cxf:cxfEndpoint address="http://${weather.service.host}:8283/WeatherService" wsdlURL="/weatherprovider.wsdl" id="sts">
+    <cxf:cxfEndpoint address="http://${weather.service.host}:8283/WeatherService" wsdlURL="/wsdl/weatherprovider.wsdl" id="sts">
         <cxf:properties>
             <entry key="schema-validation-enabled" value="true"/>
         </cxf:properties>
@@ -58,7 +58,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
             <map>
                 <entry key="action" value="Timestamp SAMLTokenUnsigned"/>
                 <entry key="user" value="alice"/>
-                <entry key="signaturePropFile" value="alice.properties"/>
+                <entry key="signaturePropFile" value="/ws-security/alice.properties"/>
                 <entry key="passwordCallbackClass" value="io.fabric8.quickstarts.camel.bridge.security.KeystorePasswordCallback"/>
                 <entry key="samlCallbackRef" value-ref="stsSamlCallbackHandler"/>
             </map>
@@ -94,7 +94,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
     </bean>
 
     <bean id="transportSTSProperties" class="org.apache.cxf.sts.StaticSTSProperties">
-        <property name="signaturePropertiesFile" value="alice.properties"/>
+        <property name="signaturePropertiesFile" value="/ws-security/alice.properties"/>
         <property name="signatureUsername" value="alice"/>
         <property name="callbackHandlerClass" value="io.fabric8.quickstarts.camel.bridge.security.KeystorePasswordCallback"/>
         <property name="issuer" value="keycloak"/>
@@ -109,7 +109,7 @@ http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd         http
         id="transportSTS" 
         implementor="#transportSTSProviderBean" 
         address="/UT" 
-        wsdlLocation="/ws-trust-1.4-service.wsdl" 
+        wsdlLocation="/wsdl/ws-trust-1.4-service.wsdl" 
         serviceName="ns1:SecurityTokenService" 
         endpointName="ns1:UT_Port">
         <jaxws:properties>

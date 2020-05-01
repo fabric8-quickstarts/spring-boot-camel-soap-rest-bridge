@@ -112,7 +112,7 @@ public class IntegrationTest {
 
         Map<String, Object> inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned");
-        inProps.put("signatureVerificationPropFile", "bob.properties");
+        inProps.put("signatureVerificationPropFile", "/ws-security/bob.properties");
         impl.getProperties().put("ws-security.saml2.validator", "io.fabric8.quickstarts.camel.bridge.security.Saml2Validator");
 
         impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));

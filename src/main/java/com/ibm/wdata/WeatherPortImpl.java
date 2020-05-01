@@ -20,7 +20,7 @@ import java.util.logging.Logger;
                       serviceName = "weatherService",
                       portName = "WeatherPort",
                       targetNamespace = "http://ibm.com/wdata",
-                      wsdlLocation = "file:/Users/ffang/issues/ENTESB-13174/bridge/src/main/resources/weatherprovider.wsdl",
+                      
                       endpointInterface = "com.ibm.wdata.WeatherPortType")
 
 public class WeatherPortImpl implements WeatherPortType {
