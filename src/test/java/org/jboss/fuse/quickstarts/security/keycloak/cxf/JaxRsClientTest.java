@@ -92,7 +92,7 @@ public class JaxRsClientTest {
     public static Logger LOG = LoggerFactory.getLogger(JaxRsClientTest.class);
     static String WEATHER_HOST = System.getProperty("weather.service.host", "192.168.0.11");
     static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
-    static String JAXWS_URI = "http://" + WEATHER_HOST + ":8282/WeatherService";
+   
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
     static String CAMEL_ROUTE_HOST = System
         .getProperty("camel.route.host", "http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io");
@@ -106,19 +106,11 @@ public class JaxRsClientTest {
     public static void beforeClass() {
         Object implementor = new WeatherPortImpl();
 
-        EndpointImpl impl = (EndpointImpl)Endpoint.publish(JAXWS_URI, implementor);
+      
+
+        EndpointImpl impl = (EndpointImpl)Endpoint.publish(JAXWS_URI_STS, implementor);
+
         Map<String, Object> inProps = new HashMap<>();
-        inProps.put("action", "Timestamp SAMLTokenSigned Signature");
-        inProps.put("signatureVerificationPropFile", "bob.properties");
-        impl.getProperties().put("ws-security.saml2.validator", "org.example.Saml2Validator");
-
-        impl.getInInterceptors().add(new WSS4JInInterceptor(inProps));
-        impl.getInInterceptors().add(new LoggingInInterceptor());
-        impl.getOutInterceptors().add(new LoggingOutInterceptor());
-
-        impl = (EndpointImpl)Endpoint.publish(JAXWS_URI_STS, implementor);
-
-        inProps = new HashMap<>();
         inProps.put("action", "Timestamp SAMLTokenSigned");
         inProps.put("signatureVerificationPropFile", "bob.properties");
         impl.getProperties().put("ws-security.saml2.validator", "org.example.Saml2Validator");
@@ -142,7 +134,7 @@ public class JaxRsClientTest {
     @Test
     public void testJavaClient() throws Exception {
 
-        Service service = Service.create(new URL(JAXWS_URI + "?wsdl"), SERVICE_QNAME);
+        Service service = Service.create(new URL(JAXWS_URI_STS + "?wsdl"), SERVICE_QNAME);
         WeatherPortType port = service.getPort(WeatherPortType.class);
         Assert.assertNotNull("Address not null", port);
         try {
@@ -162,35 +154,7 @@ public class JaxRsClientTest {
         }
     }
 
-    @Test
-
-    public void testRestClient() throws Exception {
-        
-        String accessToken = fetchAccessToken();
-
-        Client client = ClientBuilder.
-            newClient().register(JacksonJsonProvider.class)
-            .register(LoggingFeature.class);
-
-        WeatherRequest request = new WeatherRequest();
-        request.setZipcode("M3H 2J8");
-
-        // POST @WeatherPortType#weatherRequest(WeatherRequest)
-        String payload = new ObjectMapper().writeValueAsString(request);
-        
-        WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
-        trustOpenshiftSelfSignedCert(target);
-        WeatherResponse response = target.request()
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .header("user_key", "9f37d93b27f7b552f30116919cc59048")
-            .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
-        Assert.assertEquals("M3H 2J8", response.getZip());
-        Assert.assertEquals("LA", response.getCity());
-        Assert.assertEquals("CA", response.getState());
-        Assert.assertEquals("95%", response.getHumidity());
-        Assert.assertEquals("28", response.getTemperature());
-       
-    }
+    
 
     private void trustOpenshiftSelfSignedCert(WebTargetImpl target) {
         target.request();
