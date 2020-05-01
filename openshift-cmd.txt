@@ -1,6 +1,6 @@
 use 3scale as http gateway
 mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11"
-mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 
+mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
 backend url is http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io:80 and must have POST mapping rule
 ac07c312-042b-48df-9841-d4b9a5470b20
 run locally

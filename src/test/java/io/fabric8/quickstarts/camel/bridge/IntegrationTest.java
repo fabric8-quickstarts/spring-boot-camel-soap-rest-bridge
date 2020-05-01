@@ -99,6 +99,7 @@ public class IntegrationTest {
     // static String CAMEL_ROUTE_HOST = "http://localhost:8080";
     static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
     static String SSO_URL = System.getProperty("sso.server");
+    static String THREE_SCALE_USER_KEY = System.getProperty("3scale.user.key", "");
     CloseableHttpClient httpClient;
     SSLContext sslContext;
 
@@ -153,7 +154,7 @@ public class IntegrationTest {
             this.trustOpenshiftSelfSignedCert(target);
             target.request().accept(MediaType.APPLICATION_XML)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .header("user_key", "9f37d93b27f7b552f30116919cc59048")
+                .header("user_key", THREE_SCALE_USER_KEY)
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
             fail("we have enabled clientRequestValidation for camel rest dsl, but the request accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException");
         } catch (javax.ws.rs.NotAcceptableException ex) {
@@ -179,7 +180,7 @@ public class IntegrationTest {
         WebTargetImpl target = (WebTargetImpl)client.target(JAXRS_URL + "/request");
         trustOpenshiftSelfSignedCert(target);
         WeatherResponse response = target.request().header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-            .header("user_key", "9f37d93b27f7b552f30116919cc59048")
+            .header("user_key", THREE_SCALE_USER_KEY)
             .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
         Assert.assertEquals("M3H 2H8", response.getZip());
         Assert.assertEquals("LA", response.getCity());
@@ -207,7 +208,7 @@ public class IntegrationTest {
         try {
             target.request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken + 123)
-                .header("user_key", "9f37d93b27f7b552f30116919cc59048")
+                .header("user_key", THREE_SCALE_USER_KEY)
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
             fail("Should receive HTTP 401 Unauthorized with incorrect access token so can't pass RH SSO authentication");
         } catch (javax.ws.rs.NotAuthorizedException ex) {
@@ -237,7 +238,7 @@ public class IntegrationTest {
             
             target.request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .header("user_key", "9f37d93b27f7b552f30116919cc59048")
+                .header("user_key", THREE_SCALE_USER_KEY)
                 .post(Entity.entity(payload, MediaType.APPLICATION_JSON), WeatherResponse.class);
             fail("should throw schema validation exception since \"M3H 278\" isn't a valid zip code");
         } catch (javax.ws.rs.WebApplicationException ex) {
