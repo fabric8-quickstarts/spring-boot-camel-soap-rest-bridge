@@ -75,7 +75,8 @@ $ oc create secret docker-registry camel-bridge --docker-server=registry.redhat.
 $ oc secrets link default camel-bridge --for=pull
 $ oc secrets link builder camel-bridge
 ----
-Since Openshift 3.11, the new default docker image server registry.redhat.io requires authentication
+Since Openshift 3.11, the new default docker image server registry.redhat.io requires authentication. To be able to access registry.redhat.io, users need to create USERNAME and PASSWORD https://access.redhat.com/terms-based-registry/[here].
+More details can be found https://access.redhat.com/documentation/en-us/openshift_container_platform/3.11/html/configuring_clusters/install-config-configuring-red-hat-registry[here], the ***6.1.2. Creating Service Accounts and Authentication Tokens for the Red Hat Registry*
 
 
 
