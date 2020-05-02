@@ -109,36 +109,37 @@ $ oc create  -f ${BASEURL}/fis-image-streams.json
 ----
 This step will make FUSE related images available in openshift namespace.
 
-
-
-. Log in to your OpenShift cluster:
+. Install 3scale in 3scale namespace|project
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ oc login -u developer -p developer
+$ oc new-project 3scale
+$ oc create secret docker-registry threescale-registry-auth --docker-server=registry.redhat.io --docker-server=registry.redhat.io \
+  --docker-username=USERNAME \
+  --docker-password=PASSWORD \
+  --docker-email=EMAIL_ADDRESS
+$ oc secrets link default threescale-registry-auth --for=pull
+$ oc secrets link builder threescale-registry-auth
+$ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml
 ----
+3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run a local machine/laptop.
 
-. Create a new OpenShift project for the quickstart:
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc new-project MY_PROJECT_NAME
-----
 
-. Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-rest-3scale`) :
+
+. Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ cd my_openshift/spring-boot-camel-rest-3scale
+$ cd my_openshift/spring-boot-camel-soap-rest-bridge
 ----
 
 . Build and deploy the project to the OpenShift cluster:
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean -DskipTests fabric8:deploy -Popenshift
+$ mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11"
 ----
 
 . In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
