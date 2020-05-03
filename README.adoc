@@ -124,7 +124,8 @@ $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https:
 ----
 3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run a local machine/laptop.
 
-
+. Configure RH SSO: (TBD)
+. Configure 3Scale API Gateway(TBD)
 
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
@@ -158,11 +159,14 @@ We need to pass in three properties to run test
 . Insight of the test
 1. This test will start a backend SOAP service, which is protected by WS-Security Timestamp and Signed SAML2 token(need elaboration)
 2. This test contains 5 test cases, demonstrates 5 different scenarios
-   1. testJavaClient(elaboration)
-   2. testRestClientWithInvalidPayload(elaboration)
-   3. testRestClientWithSTS(elaboration)
-   4. testRestClientWithIncorrectToken(elaboration)
-   5. testRestClientWithSTSInvalidZipCode(elaboration)
+   - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
+   - testRestClientWithSTS: this testcase is the most normal one which tests the whole flow of the quickstart. It contains several steps
+       - fetch an access token from the RH SSO. Here we use the "Resource Owner Password Credentials Grant" OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
+       -
+   
+   - testRestClientWithIncorrectToken(elaboration)
+   - testRestClientWithSTSInvalidZipCode(elaboration)
+   - testRestClientWithInvalidPayload:
 
 . In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
 Wait until you can see that the pod for the `spring-boot-camel-rest-3scale` has started up.
