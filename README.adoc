@@ -141,6 +141,19 @@ $ cd my_openshift/spring-boot-camel-soap-rest-bridge
 ----
 $ mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11"
 ----
+We need to pass in two properties to camel-soap-rest-bridge image on openshift. One is the RH SSO server address on openshift, and this is
+https://sso-openshift.$(minishift ip).nip.io. Another one is the backend soap server, in this quickstart, we run the backend soap server on the local machine, so pass the local ip address of your machine as -Dweather.service.host.( must be an ip address other than localhost or 127.0.0.1)
+
+. Run the test
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
+----
+We need to pass in three properties to run test
+1. sso.servder: RH SSO server address on openshift, this is https://sso-openshift.$(minishift ip).nip.io
+2. camel.route.host: this is the address from which runs camel route. Since on openshift, we need use 3scale as API gateway, so this is https://api-3scale-apicast-production.$(minishift ip).nip.io
+3. 3scale.user.key: this is the user key we use to access 3scale API gateway, we can get it when configuring 3scale
 
 . In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
 Wait until you can see that the pod for the `spring-boot-camel-rest-3scale` has started up.
