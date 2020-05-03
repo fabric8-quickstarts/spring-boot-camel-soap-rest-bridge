@@ -161,71 +161,22 @@ We need to pass in three properties to run test
 2. This test contains 5 test cases, demonstrates 5 different scenarios
    - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
    - testRestClientWithSTS: this testcase is the most normal one which tests the whole flow of the quickstart. It contains several steps
-       - fetch an access token from the RH SSO. Here we use the "Resource Owner Password Credentials Grant" OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
-       -
+       * Test client fetch an access token from the RH SSO. Here we use the "Resource Owner Password Credentials Grant" OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
+       * Test client put the access token as AUTHORIZATION header and send a REST request to the Camel REST DSL route(or the 3scale API Gateway on openshift, and the API Gateway will direct the request to the pod runing Camel REST DSL route)
+       * When REST request reach Camel REST DSL route
    
    - testRestClientWithIncorrectToken(elaboration)
    - testRestClientWithSTSInvalidZipCode(elaboration)
    - testRestClientWithInvalidPayload:
 
 . In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
-Wait until you can see that the pod for the `spring-boot-camel-rest-3scale` has started up.
+Wait until you can see that the pod for the `spring-boot-camel-soap-rest-bridge` has started up.
 
-. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-rest-3scale` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/MY_PROJECT_NAME/browse/pods/spring-boot-camel-rest-3scale-NUMBER_OF_DEPLOYMENT?tab=details`.
-
-. Switch to tab `Logs` and then see the log from Camel.
-
-[#single-node-without-preinstalled-images]
-=== Running the Quickstart on a single-node Kubernetes/OpenShift cluster without preinstalled images
-
-A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
-
-If you have a single-node Kubernetes/OpenShift cluster, such as Minishift or the Red Hat Container Development Kit, link:http://appdev.openshift.io/docs/minishift-installation.html[installed and running], you can deploy your quickstart there.
-
-
-. Log in to your OpenShift cluster:
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc login -u developer -p developer
-----
-
-. Create a new OpenShift project for the quickstart:
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc new-project MY_PROJECT_NAME
-----
-
-. Import base images in your newly created project (MY_PROJECT_NAME):
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc import-image fis-java-openshift:2.0 --from=registry.access.redhat.com/jboss-fuse-6/fis-java-openshift:2.0 --confirm
-----
-
-. Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-rest-3scale`) :
-+
-or
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ cd my_openshift/spring-boot-camel-rest-3scale
-----
-
-. Build and deploy the project to the OpenShift cluster:
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ mvn clean -DskipTests fabric8:deploy -Popenshift  -Dfabric8.generator.fromMode=istag -Dfabric8.generator.from=MY_PROJECT_NAME/fis-java-openshift:2.0
-----
-
-. In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
-Wait until you can see that the pod for the `spring-boot-camel-rest-3scale` has started up.
-
-. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-rest-3scale` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/MY_PROJECT_NAME/browse/pods/spring-boot-camel-rest-3scale-NUMBER_OF_DEPLOYMENT?tab=details`.
+. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-soap-rest-bridge` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/MY_PROJECT_NAME/browse/pods/spring-boot-camel-soap-rest-bridge-NUMBER_OF_DEPLOYMENT?tab=details`.
 
 . Switch to tab `Logs` and then see the log from Camel.
+
+
 
 == Accessing the REST service
 
@@ -236,19 +187,19 @@ When the example is running, a REST service is available to list users that have
 
 Notice: As it depends on your OpenShift setup, the hostname (route) might vary. Verify with `oc get routes` which hostname is valid for you.
 
-The actual endpoint is using the _context-path_ `camel-rest-3scale/users` and the REST service provides two services:
+The actual endpoint is using the _context-path_ `camel-soap-rest-bridge/users` and the REST service provides two services:
 
 - `users/greet`: to use 3scale API keys to add a user to this service's list of calling users
 - `users/list`: to list all users that have called the service
 
 You can then access these services from your Web browser, e.g.:
 
-- <http://spring-boot-camel-rest-3scale-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-rest-3scale/users/greet>
-- <http://spring-boot-camel-rest-3scale-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-rest-3scale/users/list>
+- <http://spring-boot-camel-soap-rest-bridge-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-soap-rest-bridge/users/greet>
+- <http://spring-boot-camel-soap-rest-bridge-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-soap-rest-bridge/users/list>
 
-== Swagger API
+== OpenApi API
 
-The example provides API documentation of the service using Swagger using the _context-path_ `camel-rest-3scale/api-doc`. You can access the API documentation from your Web browser at <http://spring-boot-camel-rest-3scale-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-rest-3scale/api-doc>.
+The example provides API documentation of the service using Swagger using the _context-path_ `camel-soap-rest-bridge/api-doc`. You can access the API documentation from your Web browser at <http://spring-boot-camel-soap-rest-bridge-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-soap-rest-bridge/api-doc>.
 
 == Running the quickstart standalone on your machine
 
@@ -273,13 +224,13 @@ $ mvn spring-boot:run
 Alternatively, you can run the application locally using the executable JAR produced:
 +
 ----
-$ java -jar -Dspring.profiles.active=dev target/spring-boot-camel-rest-3scale-1.0-SNAPSHOT.jar
+$ java -jar -Dspring.profiles.active=dev target/spring-boot-camel-soap-rest-bridge-1.0-SNAPSHOT.jar
 ----
 
 . You can then access the REST API directly from your Web browser, e.g.:
 
-- <http://localhost:8080/camel-rest-3scale/users/greet>
-- <http://localhost:8080/camel-rest-3scale/users/list>
+- <http://localhost:8080/camel-soap-rest-bridge/users/greet>
+- <http://localhost:8080/camel-soap-rest-bridge/users/list>
 
 
 
