@@ -167,45 +167,36 @@ We need to pass in three properties to run test
    
    - testRestClientWithIncorrectToken(elaboration)
    - testRestClientWithSTSInvalidZipCode(elaboration)
-   - testRestClientWithInvalidPayload:
+   - testRestClientWithInvalidPayload:(elaboration)
 
-. In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
+. In your browser, navigate to the `openshift` project in the OpenShift console.
 Wait until you can see that the pod for the `spring-boot-camel-soap-rest-bridge` has started up.
 
-. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-soap-rest-bridge` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/MY_PROJECT_NAME/browse/pods/spring-boot-camel-soap-rest-bridge-NUMBER_OF_DEPLOYMENT?tab=details`.
+. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-soap-rest-bridge` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/openshift/browse/pods/spring-boot-camel-soap-rest-bridge-NUMBER_OF_DEPLOYMENT?tab=details`.
 
 . Switch to tab `Logs` and then see the log from Camel.
 
 
 
-== Accessing the REST service
+. Access OpenApi API
 
-When the example is running, a REST service is available to list users that have called this service. The user information comes from 3scale extensions to autofill API keys. 
-
-* `"x-data-threescale-name": "app_ids"` for the parameter that represents the application ID.
-* `"x-data-threescale-name": "app_keys"` or `"x-data-threescale-name": "user_keys"` for the parameter that represents the application or user key.
-
-Notice: As it depends on your OpenShift setup, the hostname (route) might vary. Verify with `oc get routes` which hostname is valid for you.
-
-The actual endpoint is using the _context-path_ `camel-soap-rest-bridge/users` and the REST service provides two services:
-
-- `users/greet`: to use 3scale API keys to add a user to this service's list of calling users
-- `users/list`: to list all users that have called the service
-
-You can then access these services from your Web browser, e.g.:
-
-- <http://spring-boot-camel-soap-rest-bridge-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-soap-rest-bridge/users/greet>
-- <http://spring-boot-camel-soap-rest-bridge-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-soap-rest-bridge/users/list>
-
-== OpenApi API
-
-The example provides API documentation of the service using Swagger using the _context-path_ `camel-soap-rest-bridge/api-doc`. You can access the API documentation from your Web browser at <http://spring-boot-camel-soap-rest-bridge-MY_PROJECT_NAME.OPENSHIFT_IP_ADDR.nip.io/camel-soap-rest-bridge/api-doc>.
+The example provides API documentation of the service using openapi using the _context-path_ `camelcxf/openapi`. You can access the API documentation from your Web browser at <http://camel-bridge-springboot-xml-openshift.OPENSHIFT_IP_ADDR.nip.io/camelcxf/openapi/openapi.jsonn>.
 
 == Running the quickstart standalone on your machine
 
 To run this quickstart as a standalone project on your local machine:
 
 . Download the project and extract the archive on your local filesystem.
+. Downloand and install the latest RH SSO standalone kit on your local filesystem.
+
+. Start RH SSO:
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ ./standalone.sh -Djboss.socket.binding.port-offset=100 -Djboss.bind.address=${your local ip}
+----
+Configure RH SSO(TBD)
+
 . Build the project:
 +
 [source,bash,options="nowrap",subs="attributes+"]
@@ -218,19 +209,24 @@ $ mvn clean package
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn spring-boot:run
+$ mvn clean spring-boot:run -Dsso.server=https://${your local ip}:8543 -Dweather.service.host=${your local ip}
 ----
-+
-Alternatively, you can run the application locally using the executable JAR produced:
-+
-----
-$ java -jar -Dspring.profiles.active=dev target/spring-boot-camel-soap-rest-bridge-1.0-SNAPSHOT.jar
-----
+Here you must indicate the RH SSO server and the backend SOAP service address
 
-. You can then access the REST API directly from your Web browser, e.g.:
+. Run the test:
 
-- <http://localhost:8080/camel-soap-rest-bridge/users/greet>
-- <http://localhost:8080/camel-soap-rest-bridge/users/list>
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ mvn clean test -Dtest=IntegrationTest -Dsso.server=https://${your local ip}:8543 -Dcamel.route.host=http://${your local ip}:8080
+----
+Here you must indicate the RH SSO server and the camel REST DSL route address
+
+
+. Access OpenApi doc
+
+You can access OpenApi doc from
+http://${your local ip}:8080/camelcxf/openapi/openapi.json
 
 
 
