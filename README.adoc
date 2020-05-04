@@ -150,6 +150,7 @@ https://sso-openshift.$(minishift ip).nip.io. Another one is the backend soap se
 [source,bash,options="nowrap",subs="attributes+"]
 ----
 $ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
+-Dweather.service.host=${your local ip}
 ----
 We need to pass in three properties to run test
 1. sso.servder: RH SSO server address on openshift, this is https://sso-openshift.$(minishift ip).nip.io
