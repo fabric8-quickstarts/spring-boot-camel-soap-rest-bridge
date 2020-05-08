@@ -90,7 +90,7 @@ import static org.junit.Assert.fail;
 public class IntegrationTest {
 
     public static Logger LOG = LoggerFactory.getLogger(IntegrationTest.class);
-    static String WEATHER_HOST = System.getProperty("weather.service.host", "192.168.0.11");
+    static String WEATHER_HOST = System.getProperty("weather.service.host", "192.168.0.10");
     static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
    
     static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
@@ -300,8 +300,6 @@ public class IntegrationTest {
             // we use "resource owner" credentials directly to obtain the token
             HttpPost post = new HttpPost(SSO_URL
                                          + "/auth/realms/camel-soap-rest-bridge/protocol/openid-connect/token");
-            // HttpPost post = new
-            // HttpPost("https://192.168.0.11:8543/auth/realms/fuse7karaf/protocol/openid-connect/token");
             LinkedList<NameValuePair> params = new LinkedList<>();
             params.add(new BasicNameValuePair(OAuth2Constants.GRANT_TYPE, OAuth2Constants.PASSWORD));
             params.add(new BasicNameValuePair("username", "admin"));

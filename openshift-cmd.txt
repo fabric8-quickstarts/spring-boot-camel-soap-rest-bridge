@@ -1,11 +1,11 @@
 use 3scale as http gateway
-mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11"
+mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.10"
 mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
 backend url is http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io:80 and must have POST mapping rule
 ac07c312-042b-48df-9841-d4b9a5470b20
 run locally
-mvn clean spring-boot:run -Dsso.server=https://192.168.0.11:8543 -Dweather.service.host=192.168.0.11
-mvn clean test -Dtest=IntegrationTest -Dsso.server=https://192.168.0.11:8543 -Dcamel.route.host=http://192.168.0.11:8080
+mvn clean spring-boot:run -Dsso.server=https://192.168.0.10:8543 -Dweather.service.host=192.168.0.10
+mvn clean test -Dtest=IntegrationTest -Dsso.server=https://192.168.0.10:8543 -Dcamel.route.host=http://192.168.0.10:8080
 --> Deploying template "openshift/sso74-x509-postgresql-persistent" to project openshift
 
      Red Hat Single Sign-On 7.4 on OpenJDK + PostgreSQL (Persistent)
@@ -138,7 +138,7 @@ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
 ./standalone.sh -Dkeycloak.migration.action=export -Dkeycloak.migration.realmName=fuse7karaf -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=bak.json
 ./standalone.sh -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=<FILE TO IMPORT> -Dkeycloak.migration.strategy=OVERWRITE_EXISTING
 
-./standalone.sh -Djboss.socket.binding.port-offset=100 -Djboss.bind.address=192.168.0.11
+./standalone.sh -Djboss.socket.binding.port-offset=100 -Djboss.bind.address=192.168.0.10
 
 minishift timezone --set America/Toronto
 579  ./minishift start

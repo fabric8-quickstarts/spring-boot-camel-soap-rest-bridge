@@ -80,9 +80,6 @@ public class KeycloakUTValidator implements Validator {
 
         try {
             keyCloak.realm(realm).users().search(usernameToken.getName());
-        } catch (ForbiddenException ex) {
-            // We allow 403 here as we only care about authentication. 403 means authentication succeeds but
-            // the user might not have the permissions to access the admin-cli
         } catch (RuntimeException ex) {
             ex.printStackTrace();
             throw new WSSecurityException(WSSecurityException.ErrorCode.FAILED_AUTHENTICATION);

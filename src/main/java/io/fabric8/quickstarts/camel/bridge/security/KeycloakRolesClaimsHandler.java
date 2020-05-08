@@ -66,28 +66,23 @@ public class KeycloakRolesClaimsHandler implements ClaimsHandler {
                         .username(adminUser)
                         .password(adminPassword)
                         .clientId("admin-cli")
-                        .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
+                        .resteasyClient(new ResteasyClientBuilder().disableTrustManager().connectionPoolSize(10).build())
                         .build();
 
                     claim.setIssuer("keycloak");
 
                     // Search for the user using the admin credentials
-                    try {
-                        List<UserRepresentation> users =
-                        keyCloak.realm(realm).users().search(parameters.getPrincipal().getName());
-                        if (users != null) {
-                            for (UserRepresentation user : users) {
-                                UserResource userResource = keyCloak.realm(realm).users().get(user.getId());
-                                // Add the effective roles to the claim
-                                for (RoleRepresentation roleRep : userResource.roles().realmLevel().listEffective()) {
-                                    claim.addValue(roleRep.getName());
-                                }
+                    List<UserRepresentation> users =
+                    keyCloak.realm(realm).users().search(parameters.getPrincipal().getName());
+                    if (users != null) {
+                        for (UserRepresentation user : users) {
+                            UserResource userResource = keyCloak.realm(realm).users().get(user.getId());
+                            // Add the effective roles to the claim
+                            for (RoleRepresentation roleRep : userResource.roles().realmLevel().listEffective()) {
+                                claim.addValue(roleRep.getName());
                             }
                         }
-                    } catch (ForbiddenException ex) {
-                        // We allow 403 here as we only care about authentication. 403 means authentication succeeds but
-                        // the user might not have the permissions to access the admin-cli
-                    } 
+                    }
                 }
                 claimCollection.add(claim);
             }
