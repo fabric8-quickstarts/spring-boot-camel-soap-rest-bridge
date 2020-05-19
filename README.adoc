@@ -99,6 +99,42 @@ $ oc new-app --template=sso74-x509-postgresql-persistent
 ----
 Firstly ensure RH SSO images are available from openshift namespace, and then install RH SSO with template "sso74-x509-postgresql-persistent". This template can save all RH SSO configuration permenantly, so the configuration won't get lost after openshift restart.
 
+After we install RH SSO successfully on openshift, we should be able to see some output on the console like
+
+```
+A new persistent RH-SSO service (using PostgreSQL) has been created in your project. The admin username/password for accessing the master realm via the RH-SSO console is tprYtXP1/nEjf7fojv11FmhJ5eaqadoh0SI2gvlls. The username/password for accessing the PostgreSQL database "root" is userqxe/XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx. The HTTPS keystore used for serving secure content, the JGroups keystore used for securing JGroups communications, and server truststore used for securing RH-SSO requests were automatically created via OpenShift's service serving x509 certificate secrets.
+
+     * With parameters:
+        * Application Name=sso
+        * Custom RH-SSO Server Hostname=
+        * JGroups Cluster Password=1whGRnsAWu162u0e4P6jNpLn5ysJLWjg # generated
+        * Database JNDI Name=java:jboss/datasources/KeycloakDS
+        * Database Name=root
+        * Datasource Minimum Pool Size=
+        * Datasource Maximum Pool Size=
+        * Datasource Transaction Isolation=
+        * PostgreSQL Maximum number of connections=
+        * PostgreSQL Shared Buffers=
+        * Database Username=userqxe # generated
+        * Database Password=XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx # generated
+        * Database Volume Capacity=1Gi
+        * ImageStream Namespace=openshift
+        * RH-SSO Administrator Username=tprYtXP1 # generated
+        * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
+        * RH-SSO Realm=
+        * RH-SSO Service Username=
+        * RH-SSO Service Password=
+        * PostgreSQL Image Stream Tag=10
+        * Container Memory Limit=1Gi
+```
+
+Ensure note down the Username/Password which can access the RH SSO admin console
+
+```
+        * RH-SSO Administrator Username=tprYtXP1 # generated
+        * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
+```        
+
 . Add Red Hat FUSE image stream into openshift namespace
 +
 [source,bash,options="nowrap",subs="attributes+"]
@@ -124,7 +160,71 @@ $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https:
 ----
 3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run on a local machine/laptop.
 
-. Configure RH SSO: (TBD)
+After we install 3scale successfully on openshift, we should see output from the console like
+
+```
+3scale API Management
+     ---------
+     3scale API Management main system (Evaluation)
+
+     Login on https://3scale-admin.192.168.64.33.nip.io as admin/b6t784nt
+
+     * With parameters:
+        * AMP_RELEASE=2.8
+        * APP_LABEL=3scale-api-management
+        * TENANT_NAME=3scale
+        * RWX_STORAGE_CLASS=null
+        * AMP_BACKEND_IMAGE=registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.8
+        * AMP_ZYNC_IMAGE=registry.redhat.io/3scale-amp2/zync-rhel7:3scale2.8
+        * AMP_APICAST_IMAGE=registry.redhat.io/3scale-amp2/apicast-gateway-rhel8:3scale2.8
+        * AMP_SYSTEM_IMAGE=registry.redhat.io/3scale-amp2/system-rhel7:3scale2.8
+        * ZYNC_DATABASE_IMAGE=registry.redhat.io/rhscl/postgresql-10-rhel7
+        * MEMCACHED_IMAGE=registry.redhat.io/3scale-amp2/memcached-rhel7:3scale2.8
+        * IMAGESTREAM_TAG_IMPORT_INSECURE=false
+        * SYSTEM_DATABASE_IMAGE=registry.redhat.io/rhscl/mysql-57-rhel7:5.7
+        * REDIS_IMAGE=registry.redhat.io/rhscl/redis-32-rhel7:3.2
+        * System MySQL User=mysql
+        * System MySQL Password=mrscfh4h # generated
+        * System MySQL Database Name=system
+        * System MySQL Root password.=xbi0ch3i # generated
+        * WILDCARD_DOMAIN=192.168.64.33.nip.io
+        * SYSTEM_BACKEND_USERNAME=3scale_api_user
+        * SYSTEM_BACKEND_PASSWORD=kraji167 # generated
+        * SYSTEM_BACKEND_SHARED_SECRET=8af5m6gb # generated
+        * SYSTEM_APP_SECRET_KEY_BASE=726e63427173e58cbb68a63bdc60c7315565d6acd037caedeeb0050ecc0e6e41c3c7ec4aba01c17d8d8b7b7e3a28d6166d351a6238608bb84aa5d5b2dc02ae60 # generated
+        * ADMIN_PASSWORD=b6t784nt # generated
+        * ADMIN_USERNAME=admin
+        * ADMIN_EMAIL=
+        * ADMIN_ACCESS_TOKEN=k055jof4itblvwwn # generated
+        * MASTER_NAME=master
+        * MASTER_USER=master
+        * MASTER_PASSWORD=buikudum # generated
+        * MASTER_ACCESS_TOKEN=xa7wkt16 # generated
+        * RECAPTCHA_PUBLIC_KEY=
+        * RECAPTCHA_PRIVATE_KEY=
+        * SYSTEM_REDIS_URL=redis://system-redis:6379/1
+        * SYSTEM_MESSAGE_BUS_REDIS_URL=
+        * SYSTEM_REDIS_NAMESPACE=
+        * SYSTEM_MESSAGE_BUS_REDIS_NAMESPACE=
+        * Zync Database PostgreSQL Connection Password=efyJdRccBbYcWtWl # generated
+        * ZYNC_SECRET_KEY_BASE=dcmNGWtrjCReuJlQ # generated
+        * ZYNC_AUTHENTICATION_TOKEN=3FKMAije3V3RWQQ8 # generated
+        * APICAST_ACCESS_TOKEN=2ql8txu4 # generated
+        * APICAST_MANAGEMENT_API=status
+        * APICAST_OPENSSL_VERIFY=false
+        * APICAST_RESPONSE_CODES=true
+        * APICAST_REGISTRY_URL=http://apicast-staging:8090/policies
+```
+
+Ensure note down the Username/Password which can access the 3scale admin console
+
+```
+        * ADMIN_PASSWORD=b6t784nt # generated
+        * ADMIN_USERNAME=admin
+```
+
+. Configure RH SSO: 
+
 . Configure 3Scale API Gateway(TBD)
 
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
@@ -163,7 +263,7 @@ We need to pass in three properties to run test
    - testRestClientWithSTS: this testcase is the most normal one which tests the whole flow of the quickstart. It contains several steps
        * Test client fetch an access token from the RH SSO. Here we use the https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
        * Test client puts the access token as AUTHORIZATION header and sends a REST request to the Camel REST DSL route. And the Camel REST DSL endpoint is secured by RH SSO.
-       * When REST request reach Camel REST DSL route, a GetBodyProcessor is used to extract use id from the SecurityContext of the HttpServletRequest.
+       * When REST request reach Camel REST DSL route, a GetBodyProcessor is used to extract user id from the SecurityContext of the HttpServletRequest.
        * In the route, the JSON payload will be transformed to SOAP payload, then the camel-cxf producer endpoint sends SOAP request to backend SOAP service.
        * Before the camel-cxf producer endpoint sends request to backend SOAP service, it firstly talk to CXF STS(Security Token Service) to fetch a Signed SAML2 token(StsSamlCallbackHandler).
        * CXF STS checks the user id from the camel-cxf producer which is saved previously in GetBodyProcessor and calls the backend RH SSO to verify the user id(KeycloakUTValidator) as well as fetchs the roles associated with this user(KeycloakRolesClaimsHandler) and generates a signed SAML2 token and returns to camel-cxf producer.
@@ -173,7 +273,6 @@ We need to pass in three properties to run test
    - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
    - testRestClientWithIncorrectToken : this testcase intentionally sends a request with an incorrect JWT to Camel REST DSL endpoint and expects a "HTTP 401 Unauthorized" exception; this can prove Camel REST DSL endpoint is really secured by RH SSO
    - testRestClientWithSTSInvalidZipCode : We enable schema validation for the SOAP message, and this testcase intentionally sends a request which has invalid zipcode per the XSD and expects a "cvc-pattern-valid" error
-   - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
    - testRestClientWithInvalidPayload: we have enabled clientRequestValidation for camel rest dsl, but we intentionally send a request which accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException. This can verify the clientRequestValidation on camel rest dsl actually works
 
 . In your browser, navigate to the `openshift` project in the OpenShift console.
