@@ -17,6 +17,8 @@ import org.springframework.web.WebApplicationInitializer;
 public class Application extends SpringBootServletInitializer implements WebApplicationInitializer {
 
    public static void main(String[] args) {
+      System.setProperty("weather.service.host", System.getProperty("weather.service.host", "localhost"));
+      System.setProperty("sso.server", System.getProperty("sso.server", "http://localhost:8180"));
       SpringApplication.run(Application.class, args);
    }
 
