@@ -4,7 +4,7 @@ This example demonstrates how to use Camel's REST DSL to expose a backend SOAP A
 
 ===  Mainly purpose of this quickstart
 1. A simple camel route can brige REST invocation to legacy SOAP service.
-2. Security is involved for both REST endpoint and SOAP enpoint, both backed by RH SSO. Frontend REST API protected via OAuth and OpenID Connect, and the client will fetch JWT access token from RH SSO using https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 mode and using this token to access the REST endpoint. In the bridge camel route, client identity is propaged from SecurityContext and when camel-cxf producer talk to the backend WS-SECURITY protected SOAP service, it will firstly using this client identity to fetch a SAML2 token issued by CXF STS service(which is backed by RH SSO as Identity Provider), and the SAML2 token is signed and put in WS-SECURITY header, and the backend WS-SECURITY protected SOAP service will validate this SAML2 token accordingly. The SOAP invocation also includes XSD Schema Validation. If the token validation is successful, the backend SOAP service will return response and the response will return to the REST client which initially sends out the request.
+2. Security is involved for both REST endpoint and SOAP enpoint, both backed by RH SSO. Frontend REST API protected via OAuth and OpenID Connect, and the client will fetch JWT access token from RH SSO using https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 mode and using this token to access the REST endpoint. In the bridge camel route, client identity is propaged from SecurityContext and when camel-cxf producer talk to the backend WS-SECURITY protected SOAP service, it will firstly use this client identity to fetch a SAML2 token issued by CXF STS service(which is backed by RH SSO as Identity Provider), and the SAML2 token is signed and put in WS-SECURITY header, and the backend WS-SECURITY protected SOAP service will validate this SAML2 token accordingly. The SOAP invocation also includes XSD Schema Validation. If the token validation is successful, the backend SOAP service will return response and the response will return to the REST client which initially sends out the request.
 
 This example relies on the https://maven.fabric8.io[Fabric8 Maven plugin] for its build configuration
 and uses the https://github.com/fabric8io/base-images#java-base-images[fabric8 Java base image].
@@ -99,7 +99,7 @@ $ oc new-app --template=sso74-x509-postgresql-persistent
 ----
 Firstly ensure RH SSO images are available from openshift namespace, and then install RH SSO with template "sso74-x509-postgresql-persistent". This template can save all RH SSO configuration permenantly, so the configuration won't get lost after openshift restart.
 
-. Add RH FUSE image stream into openshift namespace
+. Add Red Hat FUSE image stream into openshift namespace
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
@@ -122,7 +122,7 @@ $ oc secrets link default threescale-registry-auth --for=pull
 $ oc secrets link builder threescale-registry-auth
 $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml
 ----
-3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run a local machine/laptop.
+3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run on a local machine/laptop.
 
 . Configure RH SSO: (TBD)
 . Configure 3Scale API Gateway(TBD)
@@ -158,17 +158,23 @@ We need to pass in three properties to run test
 3. 3scale.user.key: this is the user key we use to access 3scale API gateway, we can get it when configuring 3scale
 
 . Insight of the test
-1. This test will start a backend SOAP service, which is protected by WS-Security Timestamp and Signed SAML2 token(need elaboration)
+1. This test will start a backend SOAP service, which is protected by WS-Security Timestamp and Signed SAML2 token
 2. This test contains 5 test cases, demonstrates 5 different scenarios
-   - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
    - testRestClientWithSTS: this testcase is the most normal one which tests the whole flow of the quickstart. It contains several steps
-       * Test client fetch an access token from the RH SSO. Here we use the "Resource Owner Password Credentials Grant" OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
-       * Test client put the access token as AUTHORIZATION header and send a REST request to the Camel REST DSL route(or the 3scale API Gateway on openshift, and the API Gateway will direct the request to the pod runing Camel REST DSL route)
-       * When REST request reach Camel REST DSL route
-   
-   - testRestClientWithIncorrectToken(elaboration)
-   - testRestClientWithSTSInvalidZipCode(elaboration)
-   - testRestClientWithInvalidPayload:(elaboration)
+       * Test client fetch an access token from the RH SSO. Here we use the https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
+       * Test client puts the access token as AUTHORIZATION header and sends a REST request to the Camel REST DSL route. And the Camel REST DSL endpoint is secured by RH SSO.
+       * When REST request reach Camel REST DSL route, a GetBodyProcessor is used to extract use id from the SecurityContext of the HttpServletRequest.
+       * In the route, the JSON payload will be transformed to SOAP payload, then the camel-cxf producer endpoint sends SOAP request to backend SOAP service.
+       * Before the camel-cxf producer endpoint sends request to backend SOAP service, it firstly talk to CXF STS(Security Token Service) to fetch a Signed SAML2 token(StsSamlCallbackHandler).
+       * CXF STS checks the user id from the camel-cxf producer which is saved previously in GetBodyProcessor and calls the backend RH SSO to verify the user id(KeycloakUTValidator) as well as fetchs the roles associated with this user(KeycloakRolesClaimsHandler) and generates a signed SAML2 token and returns to camel-cxf producer.
+       * camel-cxf producer puts this signed SAML2 token into SOAP message WS-SECURITY header and sends to backend SOAP service.
+       * backend SOAP service unsigns this SAML2 token and validates token(Saml2Validator)
+       
+   - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
+   - testRestClientWithIncorrectToken : this testcase intentionally sends a request with an incorrect JWT to Camel REST DSL endpoint and expects a "HTTP 401 Unauthorized" exception; this can prove Camel REST DSL endpoint is really secured by RH SSO
+   - testRestClientWithSTSInvalidZipCode : We enable schema validation for the SOAP message, and this testcase intentionally sends a request which has invalid zipcode per the XSD and expects a "cvc-pattern-valid" error
+   - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
+   - testRestClientWithInvalidPayload: we have enabled clientRequestValidation for camel rest dsl, but we intentionally send a request which accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException. This can verify the clientRequestValidation on camel rest dsl actually works
 
 . In your browser, navigate to the `openshift` project in the OpenShift console.
 Wait until you can see that the pod for the `spring-boot-camel-soap-rest-bridge` has started up.
