@@ -98,9 +98,7 @@ $ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
 $ oc new-app --template=sso74-x509-postgresql-persistent
 ----
 Firstly ensure RH SSO images are available from openshift namespace, and then install RH SSO with template "sso74-x509-postgresql-persistent". This template can save all RH SSO configuration permenantly, so the configuration won't get lost after openshift restart.
-
 After we install RH SSO successfully on openshift, we should be able to see some output on the console like
-
 ```
 A new persistent RH-SSO service (using PostgreSQL) has been created in your project. The admin username/password for accessing the master realm via the RH-SSO console is tprYtXP1/nEjf7fojv11FmhJ5eaqadoh0SI2gvlls. The username/password for accessing the PostgreSQL database "root" is userqxe/XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx. The HTTPS keystore used for serving secure content, the JGroups keystore used for securing JGroups communications, and server truststore used for securing RH-SSO requests were automatically created via OpenShift's service serving x509 certificate secrets.
 
@@ -127,9 +125,7 @@ A new persistent RH-SSO service (using PostgreSQL) has been created in your proj
         * PostgreSQL Image Stream Tag=10
         * Container Memory Limit=1Gi
 ```
-
-Ensure note down the Username/Password which can access the RH SSO admin console
-
+  Ensure note down the Username/Password which can access the RH SSO admin console
 ```
         * RH-SSO Administrator Username=tprYtXP1 # generated
         * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
@@ -158,10 +154,7 @@ $ oc secrets link default threescale-registry-auth --for=pull
 $ oc secrets link builder threescale-registry-auth
 $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml
 ----
-3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run on a local machine/laptop.
-
-After we install 3scale successfully on openshift, we should see output from the console like
-
+3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run on a local machine/laptop. After we install 3scale successfully on openshift, we should see output from the console like
 ```
 3scale API Management
      ---------
@@ -215,16 +208,19 @@ After we install 3scale successfully on openshift, we should see output from the
         * APICAST_RESPONSE_CODES=true
         * APICAST_REGISTRY_URL=http://apicast-staging:8090/policies
 ```
-
-Ensure note down the Username/Password which can access the 3scale admin console
-
+  Ensure note down the Username/Password which can access the 3scale admin console
 ```
         * ADMIN_PASSWORD=b6t784nt # generated
         * ADMIN_USERNAME=admin
 ```
 
 . Configure RH SSO: 
-
+    * Login RH SSO Admin Console from 
+https://sso-openshift.$(minishift ip).nip.io/auth with username/password as we note down after RH SSO installation beforehand
+    * In the upleft of the page click "Add Realm" button
+    * In the "Add Realm" page select Import "Select file" button
+    * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
+    
 . Configure 3Scale API Gateway(TBD)
 
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
