@@ -29,7 +29,7 @@ For more details about running this quickstart on a single-node OpenShift cluste
 
 == Running the Quickstart on a single-node Kubernetes/OpenShift cluster
 
-IMPORTANT: You need to run this example on OpenShift 3.11, RH SSO 7.4 and 3Scale 2.8.
+IMPORTANT: You need to run this example on OpenShift 3.11 or later version, RH SSO 7.4 or later version and 3Scale 2.8 or later version.
 
 A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
 
@@ -246,7 +246,7 @@ $ cd my_openshift/spring-boot-camel-soap-rest-bridge
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dweather.service.host=192.168.0.11"
+$ mvn clean fabric8:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.${minishift ip}.nip.io -Dweather.service.host=${your local ip}"
 ----
 We need to pass in two properties to camel-soap-rest-bridge image on openshift. One is the RH SSO server address on openshift, and this is
 https://sso-openshift.$(minishift ip).nip.io. Another one is the backend soap server, in this quickstart, we run the backend soap server on the local machine, so pass the local ip address of your machine as -Dweather.service.host.( must be an ip address other than localhost or 127.0.0.1)
@@ -255,7 +255,7 @@ https://sso-openshift.$(minishift ip).nip.io. Another one is the backend soap se
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.192.168.64.33.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.192.168.64.33.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
+$ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.${minishift ip}.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.${minishift ip}.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
 -Dweather.service.host=${your local ip}
 ----
 We need to pass in three properties to run test
