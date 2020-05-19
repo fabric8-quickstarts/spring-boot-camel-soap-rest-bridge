@@ -305,11 +305,10 @@ To run this quickstart as a standalone project on your local machine:
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ ./standalone.sh -Djboss.socket.binding.port-offset=100 -Djboss.bind.address=${your local ip}
-----
+$ ./standalone.sh -Djboss.socket.binding.port-offset=100
 Configure RH SSO
     * Login RH SSO Admin Console from 
-https://${your local ip}:8543/auth with admin/admin as username/password
+http://localhost:8180/auth with admin/admin as username/password
     * In the upleft of the page click "Add Realm" button
     * In the "Add Realm" page select Import "Select file" button
     * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
@@ -326,18 +325,16 @@ $ mvn clean package
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean spring-boot:run -Dsso.server=https://${your local ip}:8543 -Dweather.service.host=${your local ip}
+$ mvn clean spring-boot:run
 ----
-Here you must indicate the RH SSO server and the backend SOAP service address
 
 . Run the test:
 
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean test -Dtest=IntegrationTest -Dsso.server=https://${your local ip}:8543 -Dcamel.route.host=http://${your local ip}:8080
+$ mvn clean test -Dtest=IntegrationTest 
 ----
-Here you must indicate the RH SSO server and the camel REST DSL route address
 
 
 . Access OpenApi doc
