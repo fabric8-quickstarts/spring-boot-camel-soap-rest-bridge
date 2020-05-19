@@ -307,7 +307,12 @@ To run this quickstart as a standalone project on your local machine:
 ----
 $ ./standalone.sh -Djboss.socket.binding.port-offset=100 -Djboss.bind.address=${your local ip}
 ----
-Configure RH SSO(TBD)
+Configure RH SSO
+    * Login RH SSO Admin Console from 
+https://${your local ip}:8543/auth with admin/admin as username/password
+    * In the upleft of the page click "Add Realm" button
+    * In the "Add Realm" page select Import "Select file" button
+    * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
 
 . Build the project:
 +
