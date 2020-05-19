@@ -292,7 +292,7 @@ Wait until you can see that the pod for the `spring-boot-camel-soap-rest-bridge`
 
 . Access OpenApi API
 
-The example provides API documentation of the service using openapi using the _context-path_ `camelcxf/openapi`. You can access the API documentation from your Web browser at <http://camel-bridge-springboot-xml-openshift.OPENSHIFT_IP_ADDR.nip.io/camelcxf/openapi/openapi.jsonn>.
+The example provides API documentation of the service using openapi using the _context-path_ `camelcxf/openapi`. You can access the API documentation from your Web browser at <http://spring-boot-camel-soap-rest-bridge-openshift.OPENSHIFT_IP_ADDR.nip.io/camelcxf/openapi/openapi.jsonn>.
 
 == Running the quickstart standalone on your machine
 
