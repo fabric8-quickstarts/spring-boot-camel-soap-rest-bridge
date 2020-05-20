@@ -90,15 +90,14 @@ import static org.junit.Assert.fail;
 public class IntegrationTest {
 
     public static Logger LOG = LoggerFactory.getLogger(IntegrationTest.class);
-    static String WEATHER_HOST = System.getProperty("weather.service.host", "192.168.0.10");
-    static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
-   
-    static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
     static String CAMEL_ROUTE_HOST = System
-        .getProperty("camel.route.host", "http://camel-bridge-springboot-xml-openshift.192.168.64.33.nip.io");
-    // static String CAMEL_ROUTE_HOST = "http://localhost:8080";
+        .getProperty("camel.route.host", "http://localhost:8080");
     static String JAXRS_URL = CAMEL_ROUTE_HOST + "/camelcxf/jaxrs";
-    static String SSO_URL = System.getProperty("sso.server");
+    static String WEATHER_HOST = System.getProperty("weather.service.host", "localhost");
+    static String JAXWS_URI_STS = "http://" + WEATHER_HOST + ":8283/WeatherService";
+
+    static QName SERVICE_QNAME = new QName("http://ibm.com/wdata", "weatherService");
+    static String SSO_URL = System.getProperty("sso.server", "http://localhost:8180");
     static String THREE_SCALE_USER_KEY = System.getProperty("3scale.user.key", "");
     CloseableHttpClient httpClient;
     SSLContext sslContext;
