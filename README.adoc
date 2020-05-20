@@ -231,8 +231,20 @@ https://sso-openshift.$(minishift ip).nip.io/auth with username/password as we n
     * In the "Add Realm" page select Import "Select file" button
     * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
     
-. Configure 3Scale API Gateway(TBD)
-
+. Configure 3Scale API Gateway
+    * Login 3Scale Admin Console from
+https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/password as we note down after 3Scale installation beforehand
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-products[Creating new products]
+    ensure select "Define manually" and use camel-bridge-new for both "Name" and "System name"
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-backends[Creating new backends]
+    ensure use camel-bridge-new for both "Name" and "System name"
+    and "Private Base URL" should be http://spring-boot-camel-soap-rest-bridge-openshift.$(minishift ip).nip.io/
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#adding-backends-product[Adding backends to a product]
+    add the new created backend to the new created product
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#defining-mapping-rules[Defining mapping rules]
+    Add Mapping Rule
+    Verb:POST
+    Pattern:/
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
