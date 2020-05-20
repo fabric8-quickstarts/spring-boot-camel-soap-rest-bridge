@@ -341,7 +341,7 @@ $ mvn clean test -Dtest=IntegrationTest
 . Access OpenApi doc
 
 You can access OpenApi doc from
-http://${your local ip}:8080/camelcxf/openapi/openapi.json
+http://localhost:8080/camelcxf/openapi/openapi.json
 
 
 
