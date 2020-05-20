@@ -235,9 +235,9 @@ https://sso-openshift.$(minishift ip).nip.io/auth with username/password as we n
     * Login 3Scale Admin Console from
 https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/password as we note down after 3Scale installation beforehand
     * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-products[Creating new products]
-    ensure select "Define manually" and use camel-bridge-new for both "Name" and "System name"
+    ensure select "Define manually" and use camel-security-bridge for both "Name" and "System name"
     * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-backends[Creating new backends]
-    ensure use camel-bridge-new for both "Name" and "System name"
+    ensure use camel-security-bridge for both "Name" and "System name"
     and "Private Base URL" should be http://spring-boot-camel-soap-rest-bridge-openshift.$(minishift ip).nip.io/
     * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#adding-backends-product[Adding backends to a product]
     add the new created backend to the new created product
@@ -245,6 +245,19 @@ https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/pass
     Add Mapping Rule
     Verb:POST
     Pattern:/
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-application-plans[Creating application plans]
+    ensure use camel-security-bridge for both "Name" and "System name"
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-applications[Creating applications]
+    choose the new created camel-security-bridge application plan
+    After creating the application, note down the API Credentials, something like
+    [source,bash,options="nowrap",subs="attributes+"]
+    ----
+    User Key 	bdfb53fe9b426fbf21428fd116035798
+    ----
+    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway
+    * Edit new created camel-security-bridge project and publish it
+    From camel-security-bridge in the Dashboard, go to Integration > Settings, the "Credentials location" should select "As HTTP Headers". 
+    From camel-security-bridge in the Dashboard, go to Integration > Configuration, promote both the "Staging APIcast" and "Production APIcast"
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
