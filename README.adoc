@@ -231,8 +231,33 @@ https://sso-openshift.$(minishift ip).nip.io/auth with username/password as we n
     * In the "Add Realm" page select Import "Select file" button
     * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
     
-. Configure 3Scale API Gateway(TBD)
-
+. Configure 3Scale API Gateway
+    * Login 3Scale Admin Console from
+https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/password as we note down after 3Scale installation beforehand
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-products[Creating new products]
+    ensure select "Define manually" and use camel-security-bridge for both "Name" and "System name"
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-backends[Creating new backends]
+    ensure use camel-security-bridge for both "Name" and "System name"
+    and "Private Base URL" should be http://spring-boot-camel-soap-rest-bridge-openshift.$(minishift ip).nip.io/
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#adding-backends-product[Adding backends to a product]
+    add the new created backend to the new created product
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#defining-mapping-rules[Defining mapping rules]
+    Add Mapping Rule
+    Verb:POST
+    Pattern:/
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-application-plans[Creating application plans]
+    ensure use camel-security-bridge for both "Name" and "System name"
+    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-applications[Creating applications]
+    choose the new created camel-security-bridge application plan
+    After creating the application, note down the API Credentials, something like
+    [source,bash,options="nowrap",subs="attributes+"]
+    ----
+    User Key 	bdfb53fe9b426fbf21428fd116035798
+    ----
+    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway
+    * Edit new created camel-security-bridge project and publish it
+    From camel-security-bridge in the Dashboard, go to Integration > Settings, the "Credentials location" should select "As HTTP Headers". 
+    From camel-security-bridge in the Dashboard, go to Integration > Configuration, promote both the "Staging APIcast" and "Production APIcast"
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
@@ -255,13 +280,14 @@ https://sso-openshift.$(minishift ip).nip.io. Another one is the backend soap se
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.${minishift ip}.nip.io -Dcamel.route.host=https://api-3scale-apicast-production.${minishift ip}.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
+$ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.${minishift ip}.nip.io -Dcamel.route.host=https://camel-security-bridge-3scale-apicast-production.${minishift ip}.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
 -Dweather.service.host=${your local ip}
 ----
-We need to pass in three properties to run test
+We need to pass in four properties to run test
 1. sso.servder: RH SSO server address on openshift, this is https://sso-openshift.$(minishift ip).nip.io
-2. camel.route.host: this is the address from which runs camel route. Since on openshift, we need use 3scale as API gateway, so this is https://api-3scale-apicast-production.$(minishift ip).nip.io
-3. 3scale.user.key: this is the user key we use to access 3scale API gateway, we can get it when configuring 3scale
+2. camel.route.host: this is the address from which runs camel route. Since on openshift, we need use 3scale as API gateway, so this is https://camel-security-bridge-3scale-apicast-production.$(minishift ip).nip.io
+3. 3scale.user.key: this is the user key we use to access 3scale API gateway, we can get it when configuring 3scale(As mentioned above)
+4. weather.service.host: this is the weather service running on your local machine, so put your local ip(can't be localhost or 127.0.0.1, must be your local machine ip which is accessable from the openshift)
 
 . Insight of the test
 1. This test will start a backend SOAP service, which is protected by WS-Security Timestamp and Signed SAML2 token
@@ -312,6 +338,7 @@ http://localhost:8180/auth with admin/admin as username/password
     * In the upleft of the page click "Add Realm" button
     * In the "Add Realm" page select Import "Select file" button
     * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
+----
 
 . Build the project:
 +
@@ -340,7 +367,7 @@ $ mvn clean test -Dtest=IntegrationTest
 . Access OpenApi doc
 
 You can access OpenApi doc from
-http://${your local ip}:8080/camelcxf/openapi/openapi.json
+http://localhost:8080/camelcxf/openapi/openapi.json
 
 
 
