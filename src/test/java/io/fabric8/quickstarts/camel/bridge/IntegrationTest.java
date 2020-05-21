@@ -43,7 +43,6 @@ import javax.xml.ws.Service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.ibm.wdata.WeatherPortImpl;
 import com.ibm.wdata.WeatherPortType;
 import com.ibm.wdata.WeatherRequest;
 import com.ibm.wdata.WeatherResponse;
