@@ -22,8 +22,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.ForbiddenException;
-
 import org.apache.cxf.rt.security.claims.Claim;
 import org.apache.cxf.rt.security.claims.ClaimCollection;
 import org.apache.cxf.sts.claims.ClaimsHandler;
@@ -66,7 +64,7 @@ public class KeycloakRolesClaimsHandler implements ClaimsHandler {
                         .username(adminUser)
                         .password(adminPassword)
                         .clientId("admin-cli")
-                        .resteasyClient(new ResteasyClientBuilder().disableTrustManager().connectionPoolSize(10).build())
+                        .resteasyClient(new ResteasyClientBuilder().hostnameVerifier(new AllowAllHostnameVerifier()).connectionPoolSize(10).build())
                         .build();
 
                     claim.setIssuer("keycloak");

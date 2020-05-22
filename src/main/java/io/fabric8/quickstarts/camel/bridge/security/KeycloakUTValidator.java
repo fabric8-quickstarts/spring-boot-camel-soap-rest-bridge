@@ -19,7 +19,6 @@
 
 package io.fabric8.quickstarts.camel.bridge.security;
 
-import javax.ws.rs.ForbiddenException;
 
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSConstants;
@@ -75,7 +74,7 @@ public class KeycloakUTValidator implements Validator {
             .username(usernameToken.getName())
             .password(usernameToken.getPassword())
             .clientId("admin-cli")
-            .resteasyClient(new ResteasyClientBuilder().disableTrustManager().connectionPoolSize(10).build())
+            .resteasyClient(new ResteasyClientBuilder().hostnameVerifier(new AllowAllHostnameVerifier()).connectionPoolSize(10).build())
             .build();
 
         try {

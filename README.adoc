@@ -136,6 +136,15 @@ A new persistent RH-SSO service (using PostgreSQL) has been created in your proj
         * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
 ----        
 
+. Import openshift self-signed certificate and use this certificate as JVM trustStore to conduct SSL handshake when communicating to SSL service(SSO, 3Scale) on Openshift
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+        echo -n | openssl s_client -connect sso-openshift.$(minishift ip).nip.io:443 -servername openshift|sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > sso.crt
+        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts
+        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt
+----      
+
 . Add Red Hat FUSE image stream into openshift namespace
 +
 [source,bash,options="nowrap",subs="attributes+"]
