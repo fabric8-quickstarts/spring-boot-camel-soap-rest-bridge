@@ -141,8 +141,8 @@ A new persistent RH-SSO service (using PostgreSQL) has been created in your proj
 [source,bash,options="nowrap",subs="attributes+"]
 ----
         echo -n | openssl s_client -connect sso-openshift.$(minishift ip).nip.io:443 -servername openshift|sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > sso.crt
-        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts
-        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt
+        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts (use password changeit)
+        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt (use password changeit)
 ----      
 
 . Add Red Hat FUSE image stream into openshift namespace
