@@ -251,6 +251,8 @@ https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/pass
     * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-applications[Creating applications]
     choose the new created camel-security-bridge application plan.
     After creating the application, note down the API Credentials, something like
+    
+    +
     [source,bash,options="nowrap",subs="attributes+"]
     ----
     User Key 	bdfb53fe9b426fbf21428fd116035798
