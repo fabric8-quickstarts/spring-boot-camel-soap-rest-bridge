@@ -94,7 +94,7 @@ public class IntegrationTest {
 
     @BeforeClass
     public static void beforeClass() {
-        System.setProperty("javax.net.ssl.trustStore", "openshiftcerts"); 
+        System.setProperty("javax.net.ssl.trustStore", "./src/main/resources/openshiftcerts"); 
         Object implementor = new WeatherPortImpl();
 
       
