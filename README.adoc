@@ -252,15 +252,16 @@ https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/pass
     choose the new created camel-security-bridge application plan.
     After creating the application, note down the API Credentials, something like
     
-    +
-    [source,bash,options="nowrap",subs="attributes+"]
-    ----
+    
     User Key 	bdfb53fe9b426fbf21428fd116035798
-    ----
-    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway
+    
+    
+    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway.
+    
     * Edit new created camel-security-bridge project and publish it
     From camel-security-bridge in the Dashboard, go to Integration > Settings, the "Credentials location" should select "As HTTP Headers". 
     From camel-security-bridge in the Dashboard, go to Integration > Configuration, promote both the "Staging APIcast" and "Production APIcast"
+    
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
