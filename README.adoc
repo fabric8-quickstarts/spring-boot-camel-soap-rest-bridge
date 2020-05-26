@@ -41,17 +41,9 @@ In this quickstart, we will give detailed steps to run it on a local installed m
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ minishift start --memory 8GB --cpus 4
+$ minishift start --memory 16GB --cpus 4 --timezone America/Toronto
 ----
-Since we need to install RH SSO image(2 pods) and 3Scale image(15 pods) as pre-requirement, so we need start minishift on a powerful machine, with options "--memory 8GB --cpus 4"
-
-. Set timezone on openshift cluster
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ minishift timezone --set America/Toronto
-----
-Since in this quickstart, we need to issue security token, so the timezone matters because security token has expiration time. Ensure the openshift cluster uses the same time zone as your local machine(By default it will use UTC timezone)
+Since we need to install RH SSO image(2 pods) and 3Scale image(15 pods) as pre-requirement, so we need start minishift on a powerful machine, with options "--memory 8GB --cpus 4". Also this quickstart, we need to issue security token, so the timezone matters because security token has expiration time. Ensure the openshift cluster uses the same time zone as your local machine(By default it will use UTC timezone)
 
 . Add cluster-admin role to user developer
 +
