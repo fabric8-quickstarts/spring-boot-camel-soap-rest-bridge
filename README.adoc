@@ -126,16 +126,7 @@ A new persistent RH-SSO service (using PostgreSQL) has been created in your proj
 ----
         * RH-SSO Administrator Username=tprYtXP1 # generated
         * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
-----        
-
-. Import openshift self-signed certificate and use this certificate as JVM trustStore to conduct SSL handshake when communicating to SSL service(SSO, 3Scale) on Openshift
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-        echo -n | openssl s_client -connect sso-openshift.$(minishift ip).nip.io:443 -servername openshift|sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > sso.crt
-        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts (use password changeit)
-        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt (use password changeit)
-----      
+----             
 
 . Add Red Hat FUSE image stream into openshift namespace
 +
@@ -235,6 +226,15 @@ $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https:
 
 Here TIMEZONE is your local timezone; USERNAME and PASSWORD is USERNAME/PASSWORD you created above https://access.redhat.com/terms-based-registry/[here] which can access docker image registry registry.redhat.io.
 ----
+
+. Import openshift self-signed certificate and use this certificate as JVM trustStore to conduct SSL handshake when communicating to SSL service(SSO, 3Scale) on Openshift
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+        echo -n | openssl s_client -connect sso-openshift.$(minishift ip).nip.io:443 -servername openshift|sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > sso.crt
+        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts (use password changeit)
+        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt (use password changeit)
+---- 
 
 . Configure RH SSO: 
     * Login RH SSO Admin Console from 
