@@ -226,15 +226,15 @@ $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https:
 ----
 
 . openshift-setup.sh script
-
-There is a openshift-setup.sh with this quickstart which can help start minishift and install RH SSO and 3scale on it. To run it
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-        ./openshift-setup.sh TIMEZONE "USERNAME" "PASSWORD"
-----
-Here TIMEZONE is your local timezone; USERNAME and PASSWORD is USERNAME/PASSWORD you created above https://access.redhat.com/terms-based-registry/[here] which can access docker image registry registry.redhat.io.
+  There is a openshift-setup.sh with this quickstart which can help start minishift and install RH SSO and 3scale on it. To run it
 
+        ./openshift-setup.sh TIMEZONE "USERNAME" "PASSWORD"       
+
+Here TIMEZONE is your local timezone; USERNAME and PASSWORD is USERNAME/PASSWORD you created above https://access.redhat.com/terms-based-registry/[here] which can access docker image registry registry.redhat.io.
+----
 
 . Configure RH SSO: 
     * Login RH SSO Admin Console from 
