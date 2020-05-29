@@ -1,4 +1,3 @@
-
 /**
  * Please modify this class to meet your needs
  * This class is not complete
@@ -24,9 +23,6 @@ public class WeatherPortImpl implements WeatherPortType {
 
     private static final Logger LOG = Logger.getLogger(WeatherPortImpl.class.getName());
 
-    /* (non-Javadoc)
-     * @see com.ibm.wdata.WeatherPortType#weatherRequest(com.ibm.wdata.WeatherRequest weatherRequest)*
-     */
     public com.ibm.wdata.WeatherResponse weatherRequest(WeatherRequest weatherRequest) {
         LOG.info("Executing operation weatherRequest");
         
