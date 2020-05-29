@@ -16,7 +16,8 @@
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-        <keycloak.version>4.8.17.Final-redhat-00001</keycloak.version>
+        <keycloak.version>10.0.1</keycloak.version>
+        <keycloak.home>${project.build.directory}/keycloak-${keycloak.version}</keycloak.home>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -197,6 +198,7 @@
                     <excludes>
                         <exclude>**/*Test.java</exclude>
                     </excludes>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
 
@@ -235,6 +237,68 @@
                         <goals>
                             <goal>wsdl2java</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>Keycloak.UnpackKeycloakServer</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.keycloak</groupId>
+                                    <artifactId>keycloak-server-dist</artifactId>
+                                    <version>${keycloak.version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>Keycloak.StartAuthServer</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="${keycloak.home}/bin/standalone.sh" spawn="true">
+                                    <arg value="-Dkeycloak.migration.action=import"/>
+                                    <arg value="-Dkeycloak.migration.provider=singleFile"/>
+                                    <arg value="-Dkeycloak.migration.file=src/main/resources/keycloak-config/realm-export-new.json"/>
+                                    <arg value="-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"/>
+                                    <arg value="-Djboss.socket.binding.port-offset=100"/>
+                                </exec>  
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Keycloak.StopAuthServer</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <target>
+                                <exec executable="src/test/resources/kill-auth-server.sh" spawn="true">
+                                </exec>  
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

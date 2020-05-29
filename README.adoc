@@ -329,20 +329,7 @@ The example provides API documentation of the service using openapi using the _c
 To run this quickstart as a standalone project on your local machine:
 
 . Download the project and extract the archive on your local filesystem.
-. Downloand and install the latest RH SSO standalone kit on your local filesystem.
 
-. Start RH SSO:
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ ./standalone.sh -Djboss.socket.binding.port-offset=100
-Configure RH SSO
-    * Login RH SSO Admin Console from 
-http://localhost:8180/auth with admin/admin as username/password
-    * In the upleft of the page click "Add Realm" button
-    * In the "Add Realm" page select Import "Select file" button
-    * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
-----
 
 . Build the project:
 +
@@ -358,6 +345,7 @@ $ mvn clean package
 ----
 $ mvn clean spring-boot:run
 ----
+This will also download/start/stop the necessary Keycloak auth server automatically
 
 . Run the test:
 
