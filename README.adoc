@@ -41,17 +41,9 @@ In this quickstart, we will give detailed steps to run it on a local installed m
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ minishift start --memory 8GB --cpus 4
+$ minishift start --memory 8GB --cpus 4 --timezone America/Toronto
 ----
-Since we need to install RH SSO image(2 pods) and 3Scale image(15 pods) as pre-requirement, so we need start minishift on a powerful machine, with options "--memory 8GB --cpus 4"
-
-. Set timezone on openshift cluster
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ minishift timezone --set America/Toronto
-----
-Since in this quickstart, we need to issue security token, so the timezone matters because security token has expiration time. Ensure the openshift cluster uses the same time zone as your local machine(By default it will use UTC timezone)
+Since we need to install RH SSO image(2 pods) and 3Scale image(15 pods) as pre-requirement, so we need start minishift on a powerful machine, with options "--memory 8GB --cpus 4". Also this quickstart, we need to issue security token, so the timezone matters because security token has expiration time. Ensure the openshift cluster uses the same time zone as your local machine(By default it will use UTC timezone)
 
 . Add cluster-admin role to user developer
 +
@@ -134,7 +126,7 @@ A new persistent RH-SSO service (using PostgreSQL) has been created in your proj
 ----
         * RH-SSO Administrator Username=tprYtXP1 # generated
         * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
-----        
+----             
 
 . Add Red Hat FUSE image stream into openshift namespace
 +
@@ -224,6 +216,26 @@ $ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https:
         * ADMIN_USERNAME=admin
 ----
 
+. openshift-setup.sh script
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+  There is a openshift-setup.sh with this quickstart which can help start minishift and install RH SSO and 3scale on it. To run it
+
+        ./openshift-setup.sh TIMEZONE "USERNAME" "PASSWORD"       
+
+Here TIMEZONE is your local timezone; USERNAME and PASSWORD is USERNAME/PASSWORD you created above https://access.redhat.com/terms-based-registry/[here] which can access docker image registry registry.redhat.io.
+----
+
+. Import openshift self-signed certificate and use this certificate as JVM trustStore to conduct SSL handshake when communicating to SSL service(SSO, 3Scale) on Openshift
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+        echo -n | openssl s_client -connect sso-openshift.$(minishift ip).nip.io:443 -servername openshift|sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > sso.crt
+        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts (use password changeit)
+        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt (use password changeit)
+---- 
+
 . Configure RH SSO: 
     * Login RH SSO Admin Console from 
 https://sso-openshift.$(minishift ip).nip.io/auth with username/password as we note down after RH SSO installation beforehand
@@ -248,16 +260,19 @@ https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/pass
     * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-application-plans[Creating application plans]
     ensure use camel-security-bridge for both "Name" and "System name"
     * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-applications[Creating applications]
-    choose the new created camel-security-bridge application plan
+    choose the new created camel-security-bridge application plan.
     After creating the application, note down the API Credentials, something like
-    [source,bash,options="nowrap",subs="attributes+"]
-    ----
+    
+    
     User Key 	bdfb53fe9b426fbf21428fd116035798
-    ----
-    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway
+    
+    
+    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway.
+    
     * Edit new created camel-security-bridge project and publish it
     From camel-security-bridge in the Dashboard, go to Integration > Settings, the "Credentials location" should select "As HTTP Headers". 
     From camel-security-bridge in the Dashboard, go to Integration > Configuration, promote both the "Staging APIcast" and "Production APIcast"
+    
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
@@ -325,20 +340,7 @@ The example provides API documentation of the service using openapi using the _c
 To run this quickstart as a standalone project on your local machine:
 
 . Download the project and extract the archive on your local filesystem.
-. Downloand and install the latest RH SSO standalone kit on your local filesystem.
 
-. Start RH SSO:
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ ./standalone.sh -Djboss.socket.binding.port-offset=100
-Configure RH SSO
-    * Login RH SSO Admin Console from 
-http://localhost:8180/auth with admin/admin as username/password
-    * In the upleft of the page click "Add Realm" button
-    * In the "Add Realm" page select Import "Select file" button
-    * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
-----
 
 . Build the project:
 +
@@ -354,6 +356,7 @@ $ mvn clean package
 ----
 $ mvn clean spring-boot:run
 ----
+This will also download/start/stop the necessary Keycloak auth server automatically
 
 . Run the test:
 

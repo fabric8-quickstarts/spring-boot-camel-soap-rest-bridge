@@ -19,19 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import java.security.cert.CertificateException;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -70,8 +62,7 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.TrustStrategy;
+
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -99,10 +90,11 @@ public class IntegrationTest {
     static String SSO_URL = System.getProperty("sso.server", "http://localhost:8180");
     static String THREE_SCALE_USER_KEY = System.getProperty("3scale.user.key", "");
     CloseableHttpClient httpClient;
-    SSLContext sslContext;
+   
 
     @BeforeClass
     public static void beforeClass() {
+        System.setProperty("javax.net.ssl.trustStore", "./src/main/resources/openshiftcerts"); 
         Object implementor = new WeatherPortImpl();
 
       
@@ -325,29 +317,26 @@ public class IntegrationTest {
     }
 
     
-
+    /**
+     * Since Openshift self-signed certificate can't have accurate
+     * hostname of the service, we don't check the hostname match in certificate
+     * in the quickstart, and shouldn't use this in production
+     */
     private CloseableHttpClient getCloseableHttpClient() {
         if (httpClient != null) {
             return httpClient;
         }
-        try {
-            httpClient = HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
-                    public boolean isTrusted(X509Certificate[] arg0, String arg1)
-                        throws CertificateException {
-                        return true;
-                    }
-                }).build()).build();
-        } catch (KeyManagementException e) {
-            LOG.error("KeyManagementException in creating http client instance", e);
-        } catch (NoSuchAlgorithmException e) {
-            LOG.error("NoSuchAlgorithmException in creating http client instance", e);
-        } catch (KeyStoreException e) {
-            LOG.error("KeyStoreException in creating http client instance", e);
-        }
-        return httpClient;
+        
+        return HttpClients.custom().setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE).build();
+       
+      
     }
 
+    /**
+     * Since Openshift self-signed certificate can't have accurate
+     * hostname of the service, we don't check the hostname match in certificate
+     * in the quickstart, and shouldn't use this in production
+     */
     private void trustOpenshiftSelfSignedCert(WebTargetImpl target) {
         target.request();
         HTTPConduit conduit = (HTTPConduit)WebClient.getConfig(target.getWebClient()).getConduit();
@@ -357,25 +346,6 @@ public class IntegrationTest {
             params = new TLSClientParameters();
             conduit.setTlsClientParameters(params);
         }
-        
-
-        params.setTrustManagers(new TrustManager[] { new X509TrustManager() {
-            
-            public void checkClientTrusted(X509Certificate[] chain,
-                    String authType) throws java.security.cert.CertificateException {
-            }
-
-            
-            public void checkServerTrusted(X509Certificate[] chain,
-                    String authType) throws java.security.cert.CertificateException {
-            }
-
-            
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-        }});
-        
         params.setDisableCNCheck(true);
     }
 
