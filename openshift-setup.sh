@@ -23,9 +23,6 @@ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
 
 oc new-app --template=sso74-x509-postgresql-persistent
 
-BASEURL=https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001
-oc create  -f ${BASEURL}/fis-image-streams.json
-
 oc new-project 3scale
 oc create secret docker-registry threescale-registry-auth --docker-server=registry.redhat.io --docker-username=$2 --docker-password=$3
 oc secrets link default threescale-registry-auth --for=pull
