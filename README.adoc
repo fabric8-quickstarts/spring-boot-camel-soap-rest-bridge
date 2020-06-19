@@ -128,15 +128,6 @@ A new persistent RH-SSO service (using PostgreSQL) has been created in your proj
         * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
 ----             
 
-. Add Red Hat FUSE image stream into openshift namespace
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ BASEURL=https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.0.fuse-760043-redhat-00001
-
-$ oc create  -f ${BASEURL}/fis-image-streams.json
-----
-This step will make FUSE related images available in openshift namespace.
 
 . Install 3scale in 3scale namespace|project
 +
