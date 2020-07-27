@@ -18,7 +18,6 @@
  */
 package io.fabric8.quickstarts.camel.bridge.security;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +39,8 @@ import org.keycloak.representations.idm.UserRepresentation;
  */
 public class KeycloakRolesClaimsHandler implements ClaimsHandler {
 
-    public static final URI ROLE =
-            URI.create("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role");
+    public static final String ROLE =
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role";
 
     private String address;
     private String realm;
@@ -89,8 +88,8 @@ public class KeycloakRolesClaimsHandler implements ClaimsHandler {
         return null;
     }
 
-    public List<URI> getSupportedClaimTypes() {
-        List<URI> list = new ArrayList<URI>();
+    public List<String> getSupportedClaimTypes() {
+        List<String> list = new ArrayList<String>();
         list.add(ROLE);
         return list;
     }
