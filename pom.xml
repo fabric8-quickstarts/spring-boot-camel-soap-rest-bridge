@@ -17,7 +17,7 @@
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-        <keycloak.version>9.0.9.redhat-00001</keycloak.version>
+        <keycloak.version>9.0.12.redhat-00001</keycloak.version>
         <keycloak.home>${project.build.directory}/rh-sso-7.4</keycloak.home>
     </properties>
     <dependencyManagement>
