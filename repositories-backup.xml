@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <profiles>
+    <profile>
+      <repositories>
+        <repository>
+          <id>red-hat-ga-repository</id>
+          <name>red-hat-ga-repository</name>
+          <url>https://maven.repository.redhat.com/ga</url>
+        </repository>
+        <repository>
+          <id>red-hat-early-access-repository</id>
+          <name>red-hat-early-access-repository</name>
+          <url>https://maven.repository.redhat.com/earlyaccess/all</url>
+        </repository>
+        <repository>
+          <id>jboss-early-access-repository</id>
+          <name>jboss-early-access-repository</name>
+          <url>https://repository.jboss.org/nexus/content/groups/ea</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>red-hat-ga-repository</id>
+          <name>red-hat-ga-repository</name>
+          <url>https://maven.repository.redhat.com/ga</url>
+        </pluginRepository>
+        <pluginRepository>
+          <id>red-hat-early-access-repository</id>
+          <name>red-hat-early-access-repository</name>
+          <url>https://maven.repository.redhat.com/earlyaccess/all</url>
+        </pluginRepository>
+        <pluginRepository>
+          <id>jboss-early-access-repository</id>
+          <name>jboss-early-access-repository</name>
+          <url>https://repository.jboss.org/nexus/content/groups/ea</url>
+        </pluginRepository>
+      </pluginRepositories>
+      <id>removed-by-pme</id>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>removed-by-pme</activeProfile>
+  </activeProfiles>
+</settings>
