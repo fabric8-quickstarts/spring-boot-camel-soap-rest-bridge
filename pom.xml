@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.fabric8.quickstarts</groupId>
     <artifactId>spring-boot-camel-soap-rest-bridge</artifactId>
-    <version>7.11.0.fuse-sb2-7_11_0-00009</version>
+    <version>7.11.0.fuse-sb2-7_11_0-00009-redhat-00001</version>
     <name>Fabric8 :: Quickstarts :: Spring-Boot :: Camel SOAP/REST Bridge</name>
     <description>Spring Boot example of how to use Camel's REST DSL to expose a backend SOAP API</description>
     <properties>
-        <cxf.version>3.3.6.fuse-7_11_0-00015</cxf.version>
-        <fuse.bom.version>7.11.0.fuse-sb2-7_11_0-00012</fuse.bom.version>
+        <cxf.version>3.3.6.fuse-7_11_0-00015-redhat-00001</cxf.version>
+        <fuse.bom.version>7.11.0.fuse-sb2-7_11_0-00012-redhat-00001</fuse.bom.version>
         <docker.image.version>1.11</docker.image.version>
         <resteasy.version>3.11.3.Final-redhat-00001</resteasy.version>
         <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <keycloak.version>9.0.12.redhat-00001</keycloak.version>
+        <keycloak.version>9.0.12.redhat-00002</keycloak.version>
         <keycloak.home>${project.build.directory}/rh-sso-7.4</keycloak.home>
     </properties>
     <dependencyManagement>
@@ -159,32 +156,14 @@
 
     </dependencies>
     <repositories>
-        <repository>
-            <id>red-hat-ga-repository</id>
-            <url>https://maven.repository.redhat.com/ga</url>
-        </repository>
-        <repository>
-            <id>red-hat-early-access-repository</id>
-            <url>https://maven.repository.redhat.com/earlyaccess/all</url>
-        </repository>
-        <repository>
-            <id>jboss-early-access-repository</id>
-            <url>https://repository.jboss.org/nexus/content/groups/ea</url>
-        </repository>
+        
+        
+        
     </repositories>
     <pluginRepositories>
-        <pluginRepository>
-            <id>red-hat-ga-repository</id>
-            <url>https://maven.repository.redhat.com/ga</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>red-hat-early-access-repository</id>
-            <url>https://maven.repository.redhat.com/earlyaccess/all</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>jboss-early-access-repository</id>
-            <url>https://repository.jboss.org/nexus/content/groups/ea</url>
-        </pluginRepository>
+        
+        
+        
     </pluginRepositories>
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
@@ -288,11 +267,11 @@
                         <configuration>
                             <target>
                                 <exec executable="${keycloak.home}/bin/standalone.sh" spawn="true">
-                                    <arg value="-Dkeycloak.migration.action=import"/>
-                                    <arg value="-Dkeycloak.migration.provider=singleFile"/>
-                                    <arg value="-Dkeycloak.migration.file=src/main/resources/keycloak-config/realm-export-new.json"/>
-                                    <arg value="-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"/>
-                                    <arg value="-Djboss.socket.binding.port-offset=100"/>
+                                    <arg value="-Dkeycloak.migration.action=import" />
+                                    <arg value="-Dkeycloak.migration.provider=singleFile" />
+                                    <arg value="-Dkeycloak.migration.file=src/main/resources/keycloak-config/realm-export-new.json" />
+                                    <arg value="-Dkeycloak.migration.strategy=OVERWRITE_EXISTING" />
+                                    <arg value="-Djboss.socket.binding.port-offset=100" />
                                 </exec>  
                             </target>
                         </configuration>
@@ -313,6 +292,7 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement />
     </build>
     <profiles>
         <profile>
@@ -379,3 +359,6 @@
         </profile>
     </profiles>
 </project>
+<!--
+Modified by POM Manipulation Extension for Maven 4.7 ( SHA: 3f0f9dad )
+-->
