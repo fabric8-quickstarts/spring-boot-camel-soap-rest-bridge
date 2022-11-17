@@ -268,7 +268,7 @@ https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/pass
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ oc import-image fuse-java-openshift:2.0 --from=registry.access.redhat.com/jboss-fuse-7/fuse-java-openshift:2.0 --confirm
+$ oc import-image fuse-java-openshift:1.11 --from=registry.redhat.io/fuse7/fuse-java-openshift:1.11 --confirm
 ----
   
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
