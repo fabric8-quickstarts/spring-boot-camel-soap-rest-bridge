@@ -13,21 +13,23 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.quickstarts.camel.bridge;
+package io.fabric8.quickstarts.camel.bridge.ws;
 
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import javax.jws.WebService;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.web.WebApplicationInitializer;
+@WebService(targetNamespace = "io.fabric8.quickstarts", endpointInterface = "io.fabric8.quickstarts.camel.bridge.ws.BankAccountService")
+public class BankAccountServiceImpl implements BankAccountService {
 
-@SpringBootApplication
-@ImportResource({"classpath:spring/camel-context.xml"})
-public class Application extends SpringBootServletInitializer implements WebApplicationInitializer {
+    private int balance;
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+    @Override
+    public int getBalance() {
+        return balance;
+    }
+
+    @Override
+    public void deposit(int amount) {
+        balance += amount;
     }
 
 }
