@@ -1,25 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<!--
+
+     Copyright 2005-2023 Red Hat, Inc.
+
+     Red Hat licenses this file to you under the Apache License, version
+     2.0 (the "License"); you may not use this file except in compliance
+     with the License.  You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+     implied.  See the License for the specific language governing
+     permissions and limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.fabric8.quickstarts</groupId>
+
+    <groupId>io.fabric8.quickstarts.soap.bridge</groupId>
     <artifactId>spring-boot-camel-soap-rest-bridge</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
+
     <name>Fabric8 :: Quickstarts :: Spring-Boot :: Camel SOAP/REST Bridge</name>
     <description>Spring Boot example of how to use Camel's REST DSL to expose a backend SOAP API</description>
+
     <properties>
-        <cxf.version>3.3.6.fuse-780029</cxf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- configure the versions you want to use here -->
         <fuse.bom.version>7.11.1.fuse-sb2-7_11_1-00017</fuse.bom.version>
         <docker.image.version>1.12</docker.image.version>
-        <resteasy.version>3.11.3.Final-redhat-00001</resteasy.version>
-        <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- maven plugin versions -->
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <keycloak.version>9.0.12.redhat-00001</keycloak.version>
-        <keycloak.home>${project.build.directory}/rh-sso-7.4</keycloak.home>
     </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -29,82 +50,10 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>org.keycloak.bom</groupId>
-                <artifactId>keycloak-adapter-bom</artifactId>
-                <version>${keycloak.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-spring-boot-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-cxf-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-servlet-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-openapi-java-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-jackson-starter</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
@@ -117,80 +66,58 @@
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-ws-security</artifactId>
+            <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf.services.sts</groupId>
-            <artifactId>cxf-services-sts-core</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-cxf</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http-undertow</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-undertow</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-admin-client</artifactId>
-            <version>${keycloak.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-client</artifactId>
-            <version>${resteasy.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jackson2-provider</artifactId>
-            <version>${resteasy.version}</version>
-       </dependency>
+
+        <!-- testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-model</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>openshift-client</artifactId>
+            <version>4.6.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>red-hat-ga-repository</id>
-            <url>https://maven.repository.redhat.com/ga</url>
-        </repository>
-        <repository>
-            <id>red-hat-early-access-repository</id>
-            <url>https://maven.repository.redhat.com/earlyaccess/all</url>
-        </repository>
-        <repository>
-            <id>jboss-early-access-repository</id>
-            <url>https://repository.jboss.org/nexus/content/groups/ea</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>red-hat-ga-repository</id>
-            <url>https://maven.repository.redhat.com/ga</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>red-hat-early-access-repository</id>
-            <url>https://maven.repository.redhat.com/earlyaccess/all</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>jboss-early-access-repository</id>
-            <url>https://repository.jboss.org/nexus/content/groups/ea</url>
-        </pluginRepository>
-    </pluginRepositories>
+
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
+
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.8</source>
@@ -206,9 +133,8 @@
                     <rerunFailingTestsCount>15</rerunFailingTestsCount>
                     <argLine>-DenableImageStreamDetection=true</argLine>
                     <excludes>
-                        <exclude>**/*Test.java</exclude>
+                        <exclude>**/*KT.java</exclude>
                     </excludes>
-                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
 
@@ -224,96 +150,10 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${cxf.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>src/main/resources/wsdl/weatherprovider.wsdl</wsdl>
-                                    <faultSerialVersionUID>1</faultSerialVersionUID>
-                                </wsdlOption>
-                                <wsdlOption>
-                                    <wsdl>src/main/resources/wsdl/ws-trust-1.4-service.wsdl</wsdl>
-                                    <faultSerialVersionUID>1</faultSerialVersionUID>
-                                </wsdlOption>
-                            </wsdlOptions>
-                        </configuration>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>Keycloak.UnpackKeycloakServer</id>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.keycloak</groupId>
-                                    <artifactId>keycloak-server-dist</artifactId>
-                                    <version>${keycloak.version}</version>
-                                    <type>zip</type>
-                                    <outputDirectory>${project.build.directory}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <id>Keycloak.StartAuthServer</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <target>
-                                <exec executable="${keycloak.home}/bin/standalone.sh" spawn="true">
-                                    <arg value="-Dkeycloak.migration.action=import"/>
-                                    <arg value="-Dkeycloak.migration.provider=singleFile"/>
-                                    <arg value="-Dkeycloak.migration.file=src/main/resources/keycloak-config/realm-export-new.json"/>
-                                    <arg value="-Dkeycloak.migration.strategy=OVERWRITE_EXISTING"/>
-                                    <arg value="-Djboss.socket.binding.port-offset=100"/>
-                                </exec>  
-                            </target>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>Keycloak.StopAuthServer</id>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <phase>verify</phase>
-                        <configuration>
-                            <target>
-                                <exec executable="src/test/resources/kill-auth-server.sh" spawn="true">
-                                </exec>  
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>openshift</id>
@@ -338,33 +178,32 @@
                         <configuration>
                             <resources>
                                 <labels>
-                                  <pod>
-                                    <property>
-                                      <name>com.company</name>
-                                      <value>Red_Hat</value>
-                                    </property>
-                                    <property>
-                                      <name>rht.prod_name</name>
-                                      <value>Red_Hat_Integration</value>
-                                    </property>
-                                    <property>
-                                      <name>rht.prod_ver</name>
-                                      <value>7.12.0</value>
-                                    </property>
-                                    <property>
-                                      <name>rht.comp</name>
-                                      <value>spring-boot-camel-soap-rest-bridge</value>
-                                    </property>
-                                    <property>
-                                      <name>rht.comp_ver</name>
-                                      <value>${fuse.bom.version}</value>
-                                    </property>
-                                  </pod>
+                                    <pod>
+                                        <property>
+                                            <name>com.company</name>
+                                            <value>Red_Hat</value>
+                                        </property>
+                                        <property>
+                                            <name>rht.prod_name</name>
+                                            <value>Red_Hat_Integration</value>
+                                        </property>
+                                        <property>
+                                            <name>rht.prod_ver</name>
+                                            <value>7.12.0</value>
+                                        </property>
+                                        <property>
+                                            <name>rht.comp</name>
+                                            <value>spring-boot-camel-soap-rest-bridge</value>
+                                        </property>
+                                        <property>
+                                            <name>rht.comp_ver</name>
+                                            <value>${fuse.bom.version}</value>
+                                        </property>
+                                    </pod>
                                 </labels>
-                              </resources>
+                            </resources>
                         </configuration>
                     </plugin>
-
                 </plugins>
             </build>
         </profile>
@@ -378,4 +217,51 @@
             </activation>
         </profile>
     </profiles>
+
+    <repositories>
+        <repository>
+            <id>redhat-ga-repository</id>
+            <url>https://maven.repository.redhat.com/ga</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>redhat-ea-repository</id>
+            <url>https://maven.repository.redhat.com/earlyaccess/all</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>redhat-ga-repository</id>
+            <url>https://maven.repository.redhat.com/ga</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>redhat-ea-repository</id>
+            <url>https://maven.repository.redhat.com/earlyaccess/all</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
 </project>

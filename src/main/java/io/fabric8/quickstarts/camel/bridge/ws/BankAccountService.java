@@ -1,5 +1,5 @@
 /*
- *  Copyright 2005-2018 Red Hat, Inc.
+ *  Copyright 2005-2023 Red Hat, Inc.
  *
  *  Red Hat licenses this file to you under the Apache License, version
  *  2.0 (the "License"); you may not use this file except in compliance
@@ -13,17 +13,22 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package io.fabric8.quickstarts.camel.bridge.backend.soap;
+package io.fabric8.quickstarts.camel.bridge.ws;
 
 import javax.jws.WebMethod;
+import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 
-@WebService(targetNamespace = "urn:fuse:cxf:1")
-public class JaxWsService {
+@WebService(targetNamespace = "io.fabric8.quickstarts")
+@SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
+public interface BankAccountService {
 
-    @WebMethod
-    public String hello(String hello) {
-        return "[" + hello + "]";
-    }
+    @WebMethod(operationName = "getBalance")
+    @WebResult(name = "balance")
+    int getBalance();
+
+    @WebMethod(operationName = "deposit")
+    void deposit(int amount);
 
 }

@@ -1,10 +1,10 @@
 = Spring Boot Camel SOAP to REST bridge QuickStart
 
-This example demonstrates how to use Camel's REST DSL to expose a backend SOAP API.
+This example demonstrates how to use Camel's REST DSL to expose a backend SOAP API. It is built as a simple bank service
+where you can deposit money and ask for current account balance.
 
 ===  Mainly purpose of this quickstart
-1. A simple camel route can brige REST invocation to legacy SOAP service.
-2. Security is involved for both REST endpoint and SOAP enpoint, both backed by RH SSO. Frontend REST API protected via OAuth and OpenID Connect, and the client will fetch JWT access token from RH SSO using https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 mode and using this token to access the REST endpoint. In the bridge camel route, client identity is propaged from SecurityContext and when camel-cxf producer talk to the backend WS-SECURITY protected SOAP service, it will firstly use this client identity to fetch a SAML2 token issued by CXF STS service(which is backed by RH SSO as Identity Provider), and the SAML2 token is signed and put in WS-SECURITY header, and the backend WS-SECURITY protected SOAP service will validate this SAML2 token accordingly. The SOAP invocation also includes XSD Schema Validation. If the token validation is successful, the backend SOAP service will return response and the response will return to the REST client which initially sends out the request.
+A simple camel route can bridge REST invocation to legacy SOAP service.
 
 This example relies on the https://www.eclipse.org/jkube/docs/openshift-maven-plugin[OpenShift Maven plugin] for its build configuration
 and uses the https://github.com/fabric8io/base-images#java-base-images[fabric8 Java base image].
@@ -12,9 +12,6 @@ and uses the https://github.com/fabric8io/base-images#java-base-images[fabric8 J
 The application utilizes the Spring http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/context/annotation/ImportResource.html[`@ImportResource`] annotation to load a Camel Context definition via a _src/main/resources/spring/camel-context.xml_ file on the classpath.
 
 IMPORTANT: This quickstart can run in 2 modes: standalone on your machine and on Kubernetes / OpenShift Cluster. Quickstart requires Java 8 or Java 11 (`fuse-java-openshift-jdk11-rhel8` image is used to build in Java 11).
-
-* When running in standalone mode, a standalone RH SSO instance must be installed, started and configured properly on the local machine. Since there is no standalone 3Scale avaiable, the standalone mode doesn't involve 3Scale.
-* When running in Openshift Cluster, the RH SSO and 3Scale images must be installed, started and configured properly on the openshift.
 
 == Deployment options
 
@@ -29,248 +26,29 @@ For more details about running this quickstart on a single-node OpenShift cluste
 
 == Running the Quickstart on a single-node Kubernetes/OpenShift cluster
 
-IMPORTANT: You need to run this example on OpenShift 3.11 or later version, RH SSO 7.4 or later version and 3Scale 2.8 or later version.
+IMPORTANT: You need to run this example on Container Development Kit 3.3 or OpenShift 3.7.
+Both of these products have suitable Fuse images pre-installed.
+If you run it in an environment where those images are not preinstalled follow the steps described in <<single-node-without-preinstalled-images>>.
 
 A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
 
 If you have a single-node Kubernetes/OpenShift cluster, such as Minishift or the Red Hat Container Development Kit, link:http://appdev.openshift.io/docs/minishift-installation.html[installed and running], you can deploy your quickstart there.
 
-In this quickstart, we will give detailed steps to run it on a local installed minishift.
 
-. Start minishift 
+. Log in to your OpenShift cluster:
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ minishift start --memory 8GB --cpus 4 --timezone America/Toronto
+$ oc login -u developer -p developer
 ----
-Since we need to install RH SSO image(2 pods) and 3Scale image(15 pods) as pre-requirement, so we need start minishift on a powerful machine, with options "--memory 8GB --cpus 4". Also this quickstart, we need to issue security token, so the timezone matters because security token has expiration time. Ensure the openshift cluster uses the same time zone as your local machine(By default it will use UTC timezone)
 
-. Add cluster-admin role to user developer
+. Create a new OpenShift project for the quickstart:
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ oc login -u system:admin
-$ oc adm policy add-cluster-role-to-user cluster-admin developer
-$ oc login -u developer
-$ oc project openshift
-----
-We will install this quickstart in openshift project|namespace(this is also expected by default configurations of the templates involved), as well as the RH SSO image, so we need to add cluster-admin role to user developer.
-
-. Create secret and link it to serviceaccounts
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc create secret docker-registry camel-bridge --docker-server=registry.redhat.io \
-  --docker-username=USERNAME \
-  --docker-password=PASSWORD \
-  --docker-email=EMAIL_ADDRESS
-$ oc secrets link default camel-bridge --for=pull
-$ oc secrets link builder camel-bridge
-----
-Since Openshift 3.11, the new default docker image server registry.redhat.io requires authentication. To be able to access registry.redhat.io, users need to create USERNAME and PASSWORD https://access.redhat.com/terms-based-registry/[here].
-More details can be found https://access.redhat.com/documentation/en-us/openshift_container_platform/3.11/html/configuring_clusters/install-config-configuring-red-hat-registry[here], the ***6.1.2. Creating Service Accounts and Authentication Tokens for the Red Hat Registry*
-
-. Add RH SSO image stream and install RH SSO with template "sso74-x509-postgresql-persistent"
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ for resource in sso74-image-stream.json \
-   sso74-https.json \
-   sso74-postgresql.json \
-   sso74-postgresql-persistent.json \
-   sso74-x509-https.json \
-   sso74-x509-postgresql-persistent.json
- do
-   oc create -f \
-   https://raw.githubusercontent.com/jboss-container-images/redhat-sso-7-openshift-image/sso74-dev/templates/${resource}
- done
-
-$ oc policy add-role-to-user view system:serviceaccount:$(oc project -q):default
-
-$ oc new-app --template=sso74-x509-postgresql-persistent
-----
-Firstly ensure RH SSO images are available from openshift namespace, and then install RH SSO with template "sso74-x509-postgresql-persistent". This template can save all RH SSO configuration permenantly, so the configuration won't get lost after openshift restart.
-After we install RH SSO successfully on openshift, we should be able to see some output on the console like
-
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-A new persistent RH-SSO service (using PostgreSQL) has been created in your project. The admin username/password for accessing the master realm via the RH-SSO console is tprYtXP1/nEjf7fojv11FmhJ5eaqadoh0SI2gvlls. The username/password for accessing the PostgreSQL database "root" is userqxe/XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx. The HTTPS keystore used for serving secure content, the JGroups keystore used for securing JGroups communications, and server truststore used for securing RH-SSO requests were automatically created via OpenShift's service serving x509 certificate secrets.
-
-     * With parameters:
-        * Application Name=sso
-        * Custom RH-SSO Server Hostname=
-        * JGroups Cluster Password=1whGRnsAWu162u0e4P6jNpLn5ysJLWjg # generated
-        * Database JNDI Name=java:jboss/datasources/KeycloakDS
-        * Database Name=root
-        * Datasource Minimum Pool Size=
-        * Datasource Maximum Pool Size=
-        * Datasource Transaction Isolation=
-        * PostgreSQL Maximum number of connections=
-        * PostgreSQL Shared Buffers=
-        * Database Username=userqxe # generated
-        * Database Password=XNYRjL74CrJEWW7HiSYEdH5FMKVSDytx # generated
-        * Database Volume Capacity=1Gi
-        * ImageStream Namespace=openshift
-        * RH-SSO Administrator Username=tprYtXP1 # generated
-        * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
-        * RH-SSO Realm=
-        * RH-SSO Service Username=
-        * RH-SSO Service Password=
-        * PostgreSQL Image Stream Tag=10
-        * Container Memory Limit=1Gi
-----
-  Ensure note down the Username/Password which can access the RH SSO admin console
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-        * RH-SSO Administrator Username=tprYtXP1 # generated
-        * RH-SSO Administrator Password=nEjf7fojv11FmhJ5eaqadoh0SI2gvlls # generated
-----             
-
-
-. Install 3scale in 3scale namespace|project
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc new-project 3scale
-$ oc create secret docker-registry threescale-registry-auth --docker-server=registry.redhat.io --docker-server=registry.redhat.io \
-  --docker-username=USERNAME \
-  --docker-password=PASSWORD \
-  --docker-email=EMAIL_ADDRESS
-$ oc secrets link default threescale-registry-auth --for=pull
-$ oc secrets link builder threescale-registry-auth
-$ oc new-app    --param WILDCARD_DOMAIN="$(minishift ip).nip.io"       -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.8.0.GA/amp/amp-eval-tech-preview.yml
-----
-3scale installation on openshift will start 15 pods, so we create a new specific namespace|project for 3scale. Also we need a new threescale-registry-auth(this name matters since it's written in 3scale templates) secret for 3scale(we can reuse the USERNAME/PASSWORD from camel-bridge secret).  We intentionally use amp-eval-tech-preview.yml template here cause it doesn't explicitly specify hardware resources so can be easily run on a local machine/laptop. After we install 3scale successfully on openshift, we should see output from the console like
-
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-3scale API Management
-     ---------
-     3scale API Management main system (Evaluation)
-
-     Login on https://3scale-admin.192.168.64.33.nip.io as admin/b6t784nt
-
-     * With parameters:
-        * AMP_RELEASE=2.8
-        * APP_LABEL=3scale-api-management
-        * TENANT_NAME=3scale
-        * RWX_STORAGE_CLASS=null
-        * AMP_BACKEND_IMAGE=registry.redhat.io/3scale-amp2/backend-rhel7:3scale2.8
-        * AMP_ZYNC_IMAGE=registry.redhat.io/3scale-amp2/zync-rhel7:3scale2.8
-        * AMP_APICAST_IMAGE=registry.redhat.io/3scale-amp2/apicast-gateway-rhel8:3scale2.8
-        * AMP_SYSTEM_IMAGE=registry.redhat.io/3scale-amp2/system-rhel7:3scale2.8
-        * ZYNC_DATABASE_IMAGE=registry.redhat.io/rhscl/postgresql-10-rhel7
-        * MEMCACHED_IMAGE=registry.redhat.io/3scale-amp2/memcached-rhel7:3scale2.8
-        * IMAGESTREAM_TAG_IMPORT_INSECURE=false
-        * SYSTEM_DATABASE_IMAGE=registry.redhat.io/rhscl/mysql-57-rhel7:5.7
-        * REDIS_IMAGE=registry.redhat.io/rhscl/redis-32-rhel7:3.2
-        * System MySQL User=mysql
-        * System MySQL Password=mrscfh4h # generated
-        * System MySQL Database Name=system
-        * System MySQL Root password.=xbi0ch3i # generated
-        * WILDCARD_DOMAIN=192.168.64.33.nip.io
-        * SYSTEM_BACKEND_USERNAME=3scale_api_user
-        * SYSTEM_BACKEND_PASSWORD=kraji167 # generated
-        * SYSTEM_BACKEND_SHARED_SECRET=8af5m6gb # generated
-        * SYSTEM_APP_SECRET_KEY_BASE=726e63427173e58cbb68a63bdc60c7315565d6acd037caedeeb0050ecc0e6e41c3c7ec4aba01c17d8d8b7b7e3a28d6166d351a6238608bb84aa5d5b2dc02ae60 # generated
-        * ADMIN_PASSWORD=b6t784nt # generated
-        * ADMIN_USERNAME=admin
-        * ADMIN_EMAIL=
-        * ADMIN_ACCESS_TOKEN=k055jof4itblvwwn # generated
-        * MASTER_NAME=master
-        * MASTER_USER=master
-        * MASTER_PASSWORD=buikudum # generated
-        * MASTER_ACCESS_TOKEN=xa7wkt16 # generated
-        * RECAPTCHA_PUBLIC_KEY=
-        * RECAPTCHA_PRIVATE_KEY=
-        * SYSTEM_REDIS_URL=redis://system-redis:6379/1
-        * SYSTEM_MESSAGE_BUS_REDIS_URL=
-        * SYSTEM_REDIS_NAMESPACE=
-        * SYSTEM_MESSAGE_BUS_REDIS_NAMESPACE=
-        * Zync Database PostgreSQL Connection Password=efyJdRccBbYcWtWl # generated
-        * ZYNC_SECRET_KEY_BASE=dcmNGWtrjCReuJlQ # generated
-        * ZYNC_AUTHENTICATION_TOKEN=3FKMAije3V3RWQQ8 # generated
-        * APICAST_ACCESS_TOKEN=2ql8txu4 # generated
-        * APICAST_MANAGEMENT_API=status
-        * APICAST_OPENSSL_VERIFY=false
-        * APICAST_RESPONSE_CODES=true
-        * APICAST_REGISTRY_URL=http://apicast-staging:8090/policies
-----
-  Ensure note down the Username/Password which can access the 3scale admin console
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-        * ADMIN_PASSWORD=b6t784nt # generated
-        * ADMIN_USERNAME=admin
+$ oc new-project MY_PROJECT_NAME
 ----
 
-. openshift-setup.sh script
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-  There is a openshift-setup.sh with this quickstart which can help start minishift and install RH SSO and 3scale on it. To run it
-
-        ./openshift-setup.sh TIMEZONE "USERNAME" "PASSWORD"       
-
-Here TIMEZONE is your local timezone; USERNAME and PASSWORD is USERNAME/PASSWORD you created above https://access.redhat.com/terms-based-registry/[here] which can access docker image registry registry.redhat.io.
-----
-
-. Import openshift self-signed certificate and use this certificate as JVM trustStore to conduct SSL handshake when communicating to SSL service(SSO, 3Scale) on Openshift
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-        echo -n | openssl s_client -connect sso-openshift.$(minishift ip).nip.io:443 -servername openshift|sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > sso.crt
-        keytool -delete -noprompt -trustcacerts -alias openshift -keystore src/main/resources/openshiftcerts (use password changeit)
-        keytool -import -noprompt -alias openshift -keystore src/main/resources/openshiftcerts -file sso.crt (use password changeit)
----- 
-
-. Configure RH SSO: 
-    * Login RH SSO Admin Console from 
-https://sso-openshift.$(minishift ip).nip.io/auth with username/password as we note down after RH SSO installation beforehand
-    * In the upleft of the page click "Add Realm" button
-    * In the "Add Realm" page select Import "Select file" button
-    * Select ./src/main/resources/keycloak-config/realm-export-new.json in this example folder which will import pre-defined necessary realm/client/user/role for this example
-    
-. Configure 3Scale API Gateway
-    * Login 3Scale Admin Console from
-https://3scale-admin.$(minishift ip).nip.io/p/admin/dashboard with username/password as we note down after 3Scale installation beforehand
-    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-products[Creating new products]
-    ensure select "Define manually" and use camel-security-bridge for both "Name" and "System name"
-    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-backends[Creating new backends]
-    ensure use camel-security-bridge for both "Name" and "System name"
-    and "Private Base URL" should be http://spring-boot-camel-soap-rest-bridge-openshift.$(minishift ip).nip.io/
-    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#adding-backends-product[Adding backends to a product]
-    add the new created backend to the new created product
-    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#defining-mapping-rules[Defining mapping rules]
-    Add Mapping Rule
-    Verb:POST
-    Pattern:/
-    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-application-plans[Creating application plans]
-    ensure use camel-security-bridge for both "Name" and "System name"
-    * https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.8/html/getting_started/first-steps#creating-applications[Creating applications]
-    choose the new created camel-security-bridge application plan.
-    After creating the application, note down the API Credentials, something like
-    
-    
-    User Key 	bdfb53fe9b426fbf21428fd116035798
-    
-    
-    We need the "bdfb53fe9b426fbf21428fd116035798" to access the 3scale gateway.
-    
-    * Edit new created camel-security-bridge project and publish it
-    From camel-security-bridge in the Dashboard, go to Integration > Settings, the "Credentials location" should select "As HTTP Headers". 
-    From camel-security-bridge in the Dashboard, go to Integration > Configuration, promote both the "Staging APIcast" and "Production APIcast"
-  
-. Import base images in your newly created project (MY_PROJECT_NAME):
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ oc import-image fuse-java-openshift:2.0 --from=registry.access.redhat.com/jboss-fuse-7/fuse-java-openshift:2.0 --confirm
-----
-  
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
 +
 or
@@ -284,54 +62,82 @@ $ cd my_openshift/spring-boot-camel-soap-rest-bridge
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean oc:deploy -Popenshift -DJAVA_OPTIONS="-Dsso.server=https://sso-openshift.${minishift ip}.nip.io -Dweather.service.host=${your local ip}"
+$ mvn clean -DskipTests oc:deploy -Popenshift
 ----
-We need to pass in two properties to camel-soap-rest-bridge image on openshift. One is the RH SSO server address on openshift, and this is
-https://sso-openshift.$(minishift ip).nip.io. Another one is the backend soap server, in this quickstart, we run the backend soap server on the local machine, so pass the local ip address of your machine as -Dweather.service.host.( must be an ip address other than localhost or 127.0.0.1)
 
-. Run the test
+. In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
+Wait until you can see that the pod for the `spring-boot-camel-soap-rest-bridge` has started up.
+
+. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-soap-rest-bridge` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/MY_PROJECT_NAME/browse/rc/spring-boot-camel-soap-rest-bridge-NUMBER_OF_DEPLOYMENT?tab=details`.
+
+. Switch to tab `Logs` and then see the messages sent by Camel.
+
+[#single-node-without-preinstalled-images]
+=== Running the Quickstart on a single-node Kubernetes/OpenShift cluster without preinstalled images
+
+A single-node Kubernetes/OpenShift cluster provides you with access to a cloud environment that is similar to a production environment.
+
+If you have a single-node Kubernetes/OpenShift cluster, such as Minishift or the Red Hat Container Development Kit, link:http://appdev.openshift.io/docs/minishift-installation.html[installed and running], you can deploy your quickstart there.
+
+
+. Log in to your OpenShift cluster:
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ mvn clean  test -Dtest=IntegrationTest -Dsso.server=https://sso-openshift.${minishift ip}.nip.io -Dcamel.route.host=https://camel-security-bridge-3scale-apicast-production.${minishift ip}.nip.io:443 -D3scale.user.key=9f37d93b27f7b552f30116919cc59048
--Dweather.service.host=${your local ip}
+$ oc login -u developer -p developer
 ----
-We need to pass in four properties to run test
-1. sso.servder: RH SSO server address on openshift, this is https://sso-openshift.$(minishift ip).nip.io
-2. camel.route.host: this is the address from which runs camel route. Since on openshift, we need use 3scale as API gateway, so this is https://camel-security-bridge-3scale-apicast-production.$(minishift ip).nip.io
-3. 3scale.user.key: this is the user key we use to access 3scale API gateway, we can get it when configuring 3scale(As mentioned above)
-4. weather.service.host: this is the weather service running on your local machine, so put your local ip(can't be localhost or 127.0.0.1, must be your local machine ip which is accessable from the openshift)
 
-. Insight of the test
-1. This test will start a backend SOAP service, which is protected by WS-Security Timestamp and Signed SAML2 token
-2. This test contains 5 test cases, demonstrates 5 different scenarios
-   - testRestClientWithSTS: this testcase is the most normal one which tests the whole flow of the quickstart. It contains several steps
-       * Test client fetch an access token from the RH SSO. Here we use the https://tools.ietf.org/html/rfc6749#section-4.3["Resource Owner Password Credentials"] OAuth2 flow, which is no UI interaction involved and suitable for Java code based client/server request/response invocation.
-       * Test client puts the access token as AUTHORIZATION header and sends a REST request to the Camel REST DSL route. And the Camel REST DSL endpoint is secured by RH SSO.
-       * When REST request reach Camel REST DSL route, a GetBodyProcessor is used to extract user id from the SecurityContext of the HttpServletRequest.
-       * In the route, the JSON payload will be transformed to SOAP payload, then the camel-cxf producer endpoint sends SOAP request to backend SOAP service.
-       * Before the camel-cxf producer endpoint sends request to backend SOAP service, it firstly talk to CXF STS(Security Token Service) to fetch a Signed SAML2 token(StsSamlCallbackHandler).
-       * CXF STS checks the user id from the camel-cxf producer which is saved previously in GetBodyProcessor and calls the backend RH SSO to verify the user id(KeycloakUTValidator) as well as fetchs the roles associated with this user(KeycloakRolesClaimsHandler) and generates a signed SAML2 token and returns to camel-cxf producer.
-       * camel-cxf producer puts this signed SAML2 token into SOAP message WS-SECURITY header and sends to backend SOAP service.
-       * backend SOAP service unsigns this SAML2 token and validates token(Saml2Validator)
-       
-   - testJavaClient: this testcase won't go through camel route, instead, it's a simple JAXWS API client which sends request to backend SOAP service, but without required WS-SECURITY headers, hence an exception is expected.
-   - testRestClientWithIncorrectToken : this testcase intentionally sends a request with an incorrect JWT to Camel REST DSL endpoint and expects a "HTTP 401 Unauthorized" exception; this can prove Camel REST DSL endpoint is really secured by RH SSO
-   - testRestClientWithSTSInvalidZipCode : We enable schema validation for the SOAP message, and this testcase intentionally sends a request which has invalid zipcode per the XSD and expects a "cvc-pattern-valid" error
-   - testRestClientWithInvalidPayload: we have enabled clientRequestValidation for camel rest dsl, but we intentionally send a request which accept header can't match the produces definition in camel rest dsl, hence expect http 406 NotAcceptableException. This can verify the clientRequestValidation on camel rest dsl actually works
+. Create a new OpenShift project for the quickstart:
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ oc new-project MY_PROJECT_NAME
+----
 
-. In your browser, navigate to the `openshift` project in the OpenShift console.
+. Configure Red Hat Container Registry authentication (if it is not configured).
+Follow https://access.redhat.com/documentation/en-us/red_hat_fuse/7.11/html-single/fuse_on_openshift_guide/index#configure-container-registry[documentation].
+
+. Import base images in your newly created project (MY_PROJECT_NAME):
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ oc import-image fis-java-openshift:2.0 --from=registry.access.redhat.com/jboss-fuse-7/fis-java-openshift:2.0 --confirm
+----
+
+. Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
++
+or
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ cd my_openshift/spring-boot-camel-soap-rest-bridge
+----
+
+. Build and deploy the project to the OpenShift cluster:
++
+[source,bash,options="nowrap",subs="attributes+"]
+----
+$ mvn clean -DskipTests oc:deploy -Popenshift -Djkube.generator.fromMode=istag -Djkube.generator.from=MY_PROJECT_NAME/fis-java-openshift:2.0
+----
+
+. In your browser, navigate to the `MY_PROJECT_NAME` project in the OpenShift console.
 Wait until you can see that the pod for the `spring-boot-camel-soap-rest-bridge` has started up.
 
-. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-soap-rest-bridge` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/openshift/browse/pods/spring-boot-camel-soap-rest-bridge-NUMBER_OF_DEPLOYMENT?tab=details`.
+. On the project's `Overview` page, navigate to the details page deployment of the `spring-boot-camel-soap-rest-bridge` application: `https://OPENSHIFT_IP_ADDR:8443/console/project/MY_PROJECT_NAME/browse/pods/spring-boot-camel-soap-rest-bridge-NUMBER_OF_DEPLOYMENT?tab=details`.
 
-. Switch to tab `Logs` and then see the log from Camel.
+. Switch to tab `Logs` and then see the messages sent by Camel.
 
+== Integration Testing
 
+The example includes a  Kubernetes Integration Test.
+Once the container image has been built and deployed in Kubernetes, the integration test can be run with:
 
-. Access OpenApi API
+[source,bash,options="nowrap",subs="attributes+"]
+----
+mvn test -Dtest=*KT
+----
 
-The example provides API documentation of the service using openapi using the _context-path_ `camelcxf/openapi`. You can access the API documentation from your Web browser at <http://spring-boot-camel-soap-rest-bridge-openshift.OPENSHIFT_IP_ADDR.nip.io/camelcxf/openapi/openapi.jsonn>.
+The test is disabled by default and has to be enabled using `-Dtest`.
 
 == Running the quickstart standalone on your machine
 
@@ -354,21 +160,6 @@ $ mvn clean package
 ----
 $ mvn clean spring-boot:run
 ----
-This will also download/start/stop the necessary Keycloak auth server automatically
-
-. Run the test:
-
-+
-[source,bash,options="nowrap",subs="attributes+"]
-----
-$ mvn clean test -Dtest=IntegrationTest 
-----
-
-
-. Access OpenApi doc
-
-You can access OpenApi doc from
-http://localhost:8080/camelcxf/openapi/openapi.json
-
-
-
+This will start a legacy SOAP-based web service on http://localhost:9090/service/bank-account as well as a REST bridge
+on http://localhost:8080/rest/bank-account. You can send a GET request there to obtain current balance, or a POST
+request with an amount to deposit. The amount should be a text/plain number.
