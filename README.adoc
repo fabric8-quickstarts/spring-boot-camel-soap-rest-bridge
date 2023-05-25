@@ -3,6 +3,18 @@
 This example demonstrates how to use Camel's REST DSL to expose a backend SOAP API. It is built as a simple bank service
 where you can deposit money and ask for current account balance.
 
+To deposit a 100 USD, use the following command
+----
+curl -X POST -H "content-type:text/plain" --data "-100" http://localhost:8080/rest/bank-account
+----
+
+To check how much do you have on your account, use
+----
+curl -X GET -H "accept:text/plain" http://localhost:8080/rest/bank-account
+----
+
+Note that the web service implementation is running as a SOAP-based service on http://localhost:9090 and the commands above utilize the REST bridge.
+
 ===  Mainly purpose of this quickstart
 A simple camel route can bridge REST invocation to legacy SOAP service.
 
@@ -17,7 +29,7 @@ IMPORTANT: This quickstart can run in 2 modes: standalone on your machine and on
 
 You can run this quickstart in the following modes:
 
-* Kubernetese / Single-node OpenShift cluster
+* Kubernetes / Single-node OpenShift cluster
 * Standalone on your machine
 
 The most effective way to run this quickstart is to deploy and run the project on OpenShift.
@@ -101,7 +113,7 @@ Follow https://access.redhat.com/documentation/en-us/red_hat_fuse/7.11/html-sing
 +
 [source,bash,options="nowrap",subs="attributes+"]
 ----
-$ oc import-image fis-java-openshift:2.0 --from=registry.access.redhat.com/jboss-fuse-7/fis-java-openshift:2.0 --confirm
+$ oc import-image fuse7/fuse-java-openshift-jdk11-rhel8 --from=registry.redhat.io/fuse7/fuse-java-openshift-jdk11-rhel8:1.11 --confirm
 ----
 
 . Change the directory to the folder that contains the extracted quickstart application (for example, `my_openshift/spring-boot-camel-soap-rest-bridge`) :
